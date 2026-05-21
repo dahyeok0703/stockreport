@@ -216,3 +216,58 @@ create policy "snapshots: read all"
   using (true);
 
 -- 쓰기 정책 없음 → service role 로만 쓰기 가능
+
+-- ============================================================
+-- 시장 일정 캘린더 (초안 — 자동 갱신 단계에서 적용)
+-- ============================================================
+
+create table if not exists public.calendar_events (
+  id                  uuid primary key default gen_random_uuid(),
+  date                date not null,
+  title               text not null,
+  category            text not null
+    check (category in ('earnings','filing','economic','dividend','shareholder_meeting','market','news')),
+  market              text not null check (market in ('kr','us','global')),
+  company_name        text,
+  symbol              text,
+  description         text,
+  checkpoints         jsonb,
+  source_label        text,
+  source_url          text,
+  source_type         text,
+  raw_source_id       text,
+  detected_at         timestamptz,
+  last_refreshed_at   timestamptz,
+  confidence          numeric,
+  is_auto_generated   boolean not null default true,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
+);
+
+create index if not exists calendar_events_date_idx
+  on public.calendar_events (date);
+create index if not exists calendar_events_category_market_idx
+  on public.calendar_events (category, market);
+
+alter table public.calendar_events enable row level security;
+
+drop policy if exists "calendar_events: read all" on public.calendar_events;
+create policy "calendar_events: read all"
+  on public.calendar_events for select
+  using (true);
+-- 쓰기 정책 없음 → service role 로만 쓰기 가능 (cron / ingestion)
+
+create table if not exists public.calendar_refresh_status (
+  id           uuid primary key default gen_random_uuid(),
+  provider     text unique not null
+    check (provider in ('opendart','sec','news','earnings','economic','price')),
+  last_run_at  timestamptz,
+  next_run_at  timestamptz,
+  status       text,
+  message      text,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+alter table public.calendar_refresh_status enable row level security;
+-- 정책 없음 → 서버에서만 조회/갱신

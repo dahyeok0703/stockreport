@@ -1,0 +1,9 @@
+{
+  "_comment": "정식 자동 갱신 단계에서 vercel.json 으로 이름을 변경해 사용하세요. CRON_SECRET 환경변수와 함께 설정 권장.",
+  "crons": [
+    {
+      "path": "/api/cron/calendar-refresh",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}
