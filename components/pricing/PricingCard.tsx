@@ -1,12 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePlan } from "@/components/plans/PlanProvider";
+import type { UserPlan } from "@/lib/plans/types";
 
 export interface PricingPlan {
+  code: UserPlan;
   name: string;
   price: string;
   priceNote?: string;
   description: string;
   features: string[];
   cta: string;
+  /** 클릭 후 이동할 경로 (기본 `/account`) */
   ctaHref?: string;
   highlighted?: boolean;
 }
@@ -16,6 +23,17 @@ interface PricingCardProps {
 }
 
 export default function PricingCard({ plan }: PricingCardProps) {
+  const router = useRouter();
+  const { plan: currentPlan, setPlan } = usePlan();
+  const isCurrent = currentPlan === plan.code;
+
+  function handleClick() {
+    setPlan(plan.code);
+    router.push(plan.ctaHref ?? "/account");
+  }
+
+  const ctaLabel = isCurrent ? "현재 이용 중" : plan.cta;
+
   return (
     <article
       className={`flex flex-col rounded-2xl border p-6 ${
@@ -95,16 +113,29 @@ export default function PricingCard({ plan }: PricingCardProps) {
         ))}
       </ul>
 
-      <Link
-        href={plan.ctaHref ?? "/signup"}
-        className={`mt-6 w-full rounded-md px-4 py-2.5 text-center text-sm font-medium ${
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={isCurrent}
+        className={`mt-6 w-full rounded-md px-4 py-2.5 text-center text-sm font-medium transition disabled:opacity-60 ${
           plan.highlighted
             ? "bg-white text-brand-800 hover:bg-slate-100"
             : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
       >
-        {plan.cta}
-      </Link>
+        {ctaLabel}
+      </button>
+
+      {isCurrent && (
+        <Link
+          href="/account"
+          className={`mt-2 text-center text-xs ${
+            plan.highlighted ? "text-white/80" : "text-slate-500"
+          } hover:underline`}
+        >
+          계정에서 자세히 보기 →
+        </Link>
+      )}
     </article>
   );
 }

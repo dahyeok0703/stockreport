@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { PlanProvider } from "@/components/plans/PlanProvider";
 
 export const metadata: Metadata = {
   title: "스톡리포트 | 한국·미국 주식 공시·뉴스·실적 요약",
@@ -35,9 +36,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <PlanProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </PlanProvider>
       </body>
     </html>
   );

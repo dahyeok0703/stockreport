@@ -3,10 +3,11 @@ import DisclaimerBox from "@/components/common/DisclaimerBox";
 import PricingCard, {
   type PricingPlan,
 } from "@/components/pricing/PricingCard";
-import { PLAN_LIMITS } from "@/lib/planLimits";
+import { PLAN_LIMITS } from "@/lib/plans/planLimits";
 
 const plans: PricingPlan[] = [
   {
+    code: "free",
     name: PLAN_LIMITS.free.label,
     price: "0원",
     description: "스톡리포트를 처음 사용해 보는 개인 투자자에게 적합합니다.",
@@ -15,47 +16,51 @@ const plans: PricingPlan[] = [
       `하루 AI 요약 ${PLAN_LIMITS.free.dailyAiSummaries}회`,
       "최근 뉴스 요약",
       "최근 공시 요약",
-      `관심종목 ${PLAN_LIMITS.free.watchlistMax}개`,
+      `관심종목 ${PLAN_LIMITS.free.watchlistLimit}개`,
       "오늘의 브리핑",
     ],
     cta: "무료로 시작하기",
-    ctaHref: "/signup",
+    ctaHref: "/account",
   },
   {
+    code: "basic",
     name: PLAN_LIMITS.basic.label,
     price: "9,900원",
     priceNote: "/ 월",
     description: "꾸준히 시장을 챙겨보는 개인 투자자에게 적합합니다.",
     features: [
+      "무료 플랜 전체 포함",
       `하루 종목 리포트 조회 ${PLAN_LIMITS.basic.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.basic.dailyAiSummaries}회`,
       "공시 요약 전체 보기",
       "뉴스 요약 전체 보기",
       "실적 요약 전체 보기",
-      `관심종목 ${PLAN_LIMITS.basic.watchlistMax}개`,
+      `관심종목 ${PLAN_LIMITS.basic.watchlistLimit}개`,
       "오늘의 시장 브리핑 전체 보기",
     ],
     cta: "베이직 시작하기",
-    ctaHref: "/signup?plan=basic",
+    ctaHref: "/account",
     highlighted: true,
   },
   {
+    code: "pro",
     name: PLAN_LIMITS.pro.label,
     price: "19,900원",
     priceNote: "/ 월",
     description:
       "더 많은 종목을 깊이 있게 추적하고 싶은 사용자에게 적합합니다.",
     features: [
+      "베이직 플랜 전체 포함",
       `하루 종목 리포트 조회 ${PLAN_LIMITS.pro.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.pro.dailyAiSummaries}회`,
-      `관심종목 ${PLAN_LIMITS.pro.watchlistMax}개`,
+      `관심종목 ${PLAN_LIMITS.pro.watchlistLimit}개`,
       "관심종목 일일 브리핑",
-      "공시 발생 알림",
       "실적 발표 요약",
       "종목 비교 기능",
+      "고급 체크포인트 보기",
     ],
     cta: "프로 시작하기",
-    ctaHref: "/signup?plan=pro",
+    ctaHref: "/account",
   },
 ];
 
@@ -77,6 +82,11 @@ const faqs = [
     a: "네. 한국 KOSPI·KOSDAQ 종목과 미국 NYSE·NASDAQ 종목을 통합 검색·조회할 수 있습니다.",
   },
 ];
+
+export const metadata = {
+  title: "요금제 | 스톡리포트",
+  robots: { index: false, follow: false },
+};
 
 export default function PricingPage() {
   return (

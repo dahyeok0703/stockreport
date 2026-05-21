@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SectionTitle from "@/components/common/SectionTitle";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
+import PlanGate from "@/components/plans/PlanGate";
 import {
   earningsSchedule,
   economicSchedule,
@@ -87,8 +88,14 @@ export default function BriefingPage() {
         <MarketBriefingCard briefing={usBriefing} />
       </div>
 
-      {/* NEWS + DISCLOSURES */}
-      <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-2">
+      {/* NEWS + DISCLOSURES — 베이직 이상에서 전체 표시 */}
+      <div className="mt-12">
+        <PlanGate
+          feature="briefing_full"
+          lockTitle="시장 브리핑 전체 보기는 베이직 플랜에서 이용 가능"
+          lockDescription="주요 뉴스 흐름과 주요 공시 요약을 한 페이지에서 확인할 수 있는 전체 시장 브리핑은 베이직 플랜에서 제공됩니다."
+        >
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="card p-6">
           <h3 className="text-lg font-bold text-slate-900">주요 뉴스 요약</h3>
           <p className="mt-1 text-xs text-slate-500">
@@ -138,6 +145,8 @@ export default function BriefingPage() {
             ))}
           </ul>
         </div>
+      </div>
+        </PlanGate>
       </div>
 
       {/* SCHEDULES */}

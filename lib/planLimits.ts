@@ -1,39 +1,12 @@
+// Back-compat 어댑터. 새 코드는 `@/lib/plans/*` 에서 직접 import 하세요.
+
+export {
+  PLAN_LIMITS,
+  getPlanLimit,
+  getLimit,
+  type PlanLimit,
+} from "@/lib/plans/planLimits";
+export type { UserPlan, FeatureKey } from "@/lib/plans/types";
+
+// 과거 코드에서 사용하던 별칭 — 새 코드에서는 사용하지 마세요.
 export type PlanCode = "free" | "basic" | "pro";
-
-export interface PlanLimit {
-  code: PlanCode;
-  label: string;
-  dailyReportViews: number;
-  dailyAiSummaries: number;
-  watchlistMax: number;
-}
-
-export const PLAN_LIMITS: Record<PlanCode, PlanLimit> = {
-  free: {
-    code: "free",
-    label: "무료",
-    dailyReportViews: 3,
-    dailyAiSummaries: 3,
-    watchlistMax: 5,
-  },
-  basic: {
-    code: "basic",
-    label: "베이직",
-    dailyReportViews: 50,
-    dailyAiSummaries: 50,
-    watchlistMax: 50,
-  },
-  pro: {
-    code: "pro",
-    label: "프로",
-    dailyReportViews: 200,
-    dailyAiSummaries: 200,
-    watchlistMax: 200,
-  },
-};
-
-export function getPlanLimit(plan: string | null | undefined): PlanLimit {
-  if (plan === "basic") return PLAN_LIMITS.basic;
-  if (plan === "pro") return PLAN_LIMITS.pro;
-  return PLAN_LIMITS.free;
-}

@@ -5,10 +5,11 @@ import ReportSection from "@/components/stocks/ReportSection";
 import WatchlistButton from "@/components/stocks/WatchlistButton";
 import ReportLimitBlock from "@/components/stocks/ReportLimitBlock";
 import ReportViewTracker from "@/components/stocks/ReportViewTracker";
-import FilingCard from "@/components/stocks/FilingCard";
-import NormalizedNewsCard from "@/components/stocks/NormalizedNewsCard";
-import FinancialTable from "@/components/stocks/FinancialTable";
-import EarningsBox from "@/components/stocks/EarningsBox";
+import GatedFilingsList from "@/components/stocks/GatedFilingsList";
+import GatedNewsList from "@/components/stocks/GatedNewsList";
+import GatedFinancials from "@/components/stocks/GatedFinancials";
+import GatedEarningsBox from "@/components/stocks/GatedEarningsBox";
+import GatedCheckpoints from "@/components/stocks/GatedCheckpoints";
 import PriceSnapshotBox from "@/components/stocks/PriceSnapshotBox";
 import { getStockReport } from "@/lib/data/stockDataService";
 import { getStockBy } from "@/lib/mockStocks";
@@ -339,13 +340,7 @@ export default async function StockReportPage({ params }: PageProps) {
                 }
                 description="회사가 공식적으로 제출한 자료의 목록입니다. 제목·일자·유형·원문 링크를 그대로 표시합니다."
               >
-                {report.filings.length === 0 ? (
-                  <div className="card p-5 text-sm text-slate-600">
-                    현재 제공 가능한 공시 데이터가 없습니다.
-                  </div>
-                ) : (
-                  report.filings.map((f) => <FilingCard key={f.id} filing={f} />)
-                )}
+                <GatedFilingsList filings={report.filings} />
               </ReportSection>
 
               {/* F. 뉴스 */}
@@ -355,15 +350,7 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="최근 뉴스 흐름"
                 description="여러 출처의 종목 관련 뉴스를 모아 제목·출처·날짜·키워드 중심으로 정리합니다."
               >
-                {report.news.length === 0 ? (
-                  <div className="card p-5 text-sm text-slate-600">
-                    현재 제공 가능한 뉴스 데이터가 없습니다.
-                  </div>
-                ) : (
-                  report.news.map((n) => (
-                    <NormalizedNewsCard key={n.id} news={n} />
-                  ))
-                )}
+                <GatedNewsList news={report.news} />
               </ReportSection>
 
               {/* G. 실적 정보 */}
@@ -373,13 +360,7 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="실적 정보"
                 description="최근 보고 기간의 매출·영업이익·순이익을 정리합니다. 숫자는 입력 데이터에 있는 경우에만 사용됩니다."
               >
-                {report.earnings ? (
-                  <EarningsBox earnings={report.earnings} />
-                ) : (
-                  <div className="card p-5 text-sm text-slate-600">
-                    현재 제공 가능한 실적 데이터가 없습니다.
-                  </div>
-                )}
+                <GatedEarningsBox earnings={report.earnings} />
               </ReportSection>
 
               {/* H. 재무 핵심지표 */}
@@ -389,13 +370,7 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="재무 핵심지표"
                 description="매출 성장률·영업이익률·부채·현금흐름을 정리합니다. PER/PBR 등은 참고 지표로만 표시되며 투자 판단은 포함하지 않습니다."
               >
-                {report.financials.length === 0 ? (
-                  <div className="card p-5 text-sm text-slate-600">
-                    현재 제공 가능한 재무 데이터가 없습니다.
-                  </div>
-                ) : (
-                  <FinancialTable metrics={report.financials} />
-                )}
+                <GatedFinancials metrics={report.financials} />
               </ReportSection>
 
               {/* I. 체크포인트 */}
@@ -405,45 +380,13 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="주요 체크포인트"
                 description="공시·실적·뉴스·재무 흐름에서 확인할 수 있는 항목입니다. 좋다/나쁘다 판단은 포함하지 않습니다."
               >
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {[
-                    {
-                      title: "공시에서 확인할 점",
-                      items: checkpoints.disclosure,
-                    },
-                    {
-                      title: "실적에서 확인할 점",
-                      items: checkpoints.earnings,
-                    },
-                    {
-                      title: "뉴스 흐름에서 확인할 점",
-                      items: checkpoints.news,
-                    },
-                  ].map((box) => (
-                    <div key={box.title} className="card p-5">
-                      <h4 className="text-sm font-semibold text-slate-900">
-                        {box.title}
-                      </h4>
-                      {box.items.length === 0 ? (
-                        <p className="mt-2 text-sm text-slate-500">
-                          체크포인트 데이터가 없습니다.
-                        </p>
-                      ) : (
-                        <ul className="mt-3 space-y-1.5">
-                          {box.items.map((c) => (
-                            <li
-                              key={c}
-                              className="flex items-start gap-2 text-sm text-slate-700"
-                            >
-                              <span className="mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-600" />
-                              <span>{c}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <GatedCheckpoints
+                  groups={[
+                    { title: "공시에서 확인할 점", items: checkpoints.disclosure },
+                    { title: "실적에서 확인할 점", items: checkpoints.earnings },
+                    { title: "뉴스 흐름에서 확인할 점", items: checkpoints.news },
+                  ]}
+                />
               </ReportSection>
 
               {/* J. AI 정보 요약 */}

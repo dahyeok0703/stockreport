@@ -63,7 +63,7 @@ export async function addToWatchlist(
     return { ok: false, error: "로그인이 필요합니다." };
   }
 
-  const limit = getPlanLimit(profile?.plan).watchlistMax;
+  const limit = getPlanLimit(profile?.plan).watchlistLimit;
 
   const { count, error: countError } = await supabase
     .from("watchlist_items")

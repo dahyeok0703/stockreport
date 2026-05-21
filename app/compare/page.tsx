@@ -12,6 +12,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SectionTitle from "@/components/common/SectionTitle";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
+import LockedFeatureCard from "@/components/plans/LockedFeatureCard";
+import { usePlan } from "@/components/plans/PlanProvider";
+import { canAccessFeature } from "@/lib/plans/featureAccess";
 import { getStockBy, mockStocks, type Stock } from "@/lib/mockStocks";
 import {
   formatDemoChange,
@@ -60,12 +63,36 @@ function serializeKeys(keys: StockKey[]): string {
 function CompareInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { plan, hydrated } = usePlan();
   const initialKeys = useMemo(
     () => parseSymbolsParam(searchParams?.get("symbols") ?? null),
     [searchParams],
   );
 
   const [keys, setKeys] = useState<StockKey[]>(initialKeys);
+
+  // 프로 전용 기능: 권한 없으면 잠금 카드만 표시
+  if (hydrated && !canAccessFeature(plan, "stock_compare")) {
+    return (
+      <div className="container-page py-10 sm:py-14">
+        <SectionTitle
+          eyebrow="종목 비교"
+          title="종목 비교"
+          description="여러 종목의 기본 정보·가격·실적·재무 지표를 한 화면에서 비교합니다."
+        />
+        <div className="mt-8">
+          <LockedFeatureCard
+            requiredPlan="pro"
+            title="종목 비교 기능은 프로 플랜에서 이용 가능"
+            description="최대 4종목을 나란히 비교하는 기능은 프로 플랜에서 제공됩니다. 요금제를 변경하면 바로 이용할 수 있습니다."
+          />
+        </div>
+        <div className="mt-10">
+          <DisclaimerBox />
+        </div>
+      </div>
+    );
+  }
 
   // URL 동기화
   useEffect(() => {

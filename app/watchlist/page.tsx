@@ -7,7 +7,13 @@ import DisclaimerBox from "@/components/common/DisclaimerBox";
 import RemoveWatchlistButton from "@/components/stocks/RemoveWatchlistButton";
 import { getStockReportHref } from "@/lib/utils";
 import { useLocalWatchlist } from "@/lib/watchlistLocal";
-import { getAlertsForSymbols, type AlertItem } from "@/lib/alertsFeed";
+import {
+  getAlertsForSymbols,
+  type AlertItem,
+} from "@/lib/stockActivityFeed";
+import { usePlan } from "@/components/plans/PlanProvider";
+import { canAccessFeature } from "@/lib/plans/featureAccess";
+import LockedFeatureCard from "@/components/plans/LockedFeatureCard";
 
 /**
  * 데모 모드 관심종목 페이지 — 브라우저 localStorage 기반.
@@ -32,6 +38,8 @@ function demoCounts(key: string): {
 
 export default function WatchlistPage() {
   const { items, hydrated } = useLocalWatchlist();
+  const { plan } = usePlan();
+  const canSeeBriefing = canAccessFeature(plan, "watchlist_daily_briefing");
 
   const briefingAlerts = useMemo<AlertItem[]>(() => {
     if (items.length === 0) return [];
@@ -108,26 +116,21 @@ export default function WatchlistPage() {
             />
           </div>
 
-          {/* 관심종목 일일 브리핑 */}
-          {briefingAlerts.length > 0 && (
-            <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-              <header className="flex items-center justify-between gap-2">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    오늘의 관심종목 브리핑
-                  </h3>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    관심종목 관련 최근 공시·실적·뉴스 흐름을 요약했습니다.
-                  </p>
-                </div>
-                <Link
-                  href="/alerts"
-                  className="hidden text-xs font-medium text-brand-700 hover:underline sm:inline"
-                >
-                  전체 알림 보기 →
-                </Link>
-              </header>
-              <ul className="mt-4 divide-y divide-slate-200">
+          {/* 관심종목 일일 브리핑 — 프로 전용 */}
+          {canSeeBriefing ? (
+            briefingAlerts.length > 0 && (
+              <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+                <header className="flex items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      오늘의 관심종목 브리핑
+                    </h3>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      관심종목 관련 최근 공시·실적·뉴스 흐름을 요약했습니다.
+                    </p>
+                  </div>
+                </header>
+                <ul className="mt-4 divide-y divide-slate-200">
                 {briefingAlerts.map((a) => (
                   <li key={a.id} className="py-3 first:pt-0 last:pb-0">
                     <Link
@@ -169,15 +172,16 @@ export default function WatchlistPage() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 sm:hidden">
-                <Link
-                  href="/alerts"
-                  className="text-xs font-medium text-brand-700 hover:underline"
-                >
-                  전체 알림 보기 →
-                </Link>
-              </div>
-            </section>
+              </section>
+            )
+          ) : (
+            <div className="mt-8">
+              <LockedFeatureCard
+                requiredPlan="pro"
+                title="관심종목 일일 브리핑은 프로 플랜에서 이용 가능"
+                description="관심종목 관련 최근 공시·실적·뉴스를 자동으로 정리한 브리핑은 프로 플랜에서 확인할 수 있습니다."
+              />
+            </div>
           )}
 
           {/* 카드 그리드 */}

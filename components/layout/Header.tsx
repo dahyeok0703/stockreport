@@ -16,7 +16,6 @@ const navItems = [
   { href: "/briefing", label: "브리핑" },
   { href: "/calendar", label: "캘린더" },
   { href: "/watchlist", label: "관심종목" },
-  { href: "/alerts", label: "알림" },
   { href: "/guides", label: "가이드" },
   { href: "/pricing", label: "요금제" },
 ];

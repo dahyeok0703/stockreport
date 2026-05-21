@@ -263,7 +263,7 @@ export default function HomePage() {
               </h3>
               <p className="mt-2 text-sm text-slate-600">
                 하루 리포트 {p.dailyReportViews}회 · AI 요약 {p.dailyAiSummaries}회 ·
-                관심종목 {p.watchlistMax}개
+                관심종목 {p.watchlistLimit}개
               </p>
               <Link
                 href="/pricing"
