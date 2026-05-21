@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { brandConfig } from "@/lib/brand";
 import PeixeLuaLogo from "@/components/brand/PeixeLuaLogo";
+import StockReportMark from "@/components/brand/StockReportMark";
 
 const footerSections = [
   {
@@ -43,9 +44,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-700 text-sm font-bold text-white">
-                S
-              </span>
+              <StockReportMark size={28} className="text-slate-900" />
               <span className="text-base font-bold text-slate-900">
                 {brandConfig.serviceNameKo}
               </span>
@@ -112,11 +111,8 @@ export default function Footer() {
         )}
 
         <div className="section-divider mt-10 flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <PeixeLuaLogo variant="full" size="small" tone="muted" />
-            <span className="text-xs text-slate-400">
-              {brandConfig.companyNameKo} · {brandConfig.companyNameEn}
-            </span>
+          <div className="flex items-center">
+            <PeixeLuaLogo variant="iconOnly" size="small" />
           </div>
           <p className="text-xs leading-5 text-slate-500">
             © {new Date().getFullYear()} {brandConfig.companyNameKo}.

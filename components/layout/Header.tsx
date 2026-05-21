@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import StockReportMark from "@/components/brand/StockReportMark";
 
 /**
  * 데모 모드 헤더 — 인증 상태에 의존하지 않습니다.
@@ -27,9 +28,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-700 text-sm font-bold text-white">
-            S
-          </span>
+          <StockReportMark size={32} className="text-slate-900" />
           <span className="flex flex-col leading-tight">
             <span className="text-lg font-bold tracking-tight text-slate-900">
               스톡리포트
