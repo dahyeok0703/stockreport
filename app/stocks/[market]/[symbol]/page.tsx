@@ -13,11 +13,14 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  return mockStocks.map((s) => ({ market: s.market, symbol: s.symbol }));
+  return (mockStocks ?? []).map((s) => ({
+    market: s.market,
+    symbol: s.symbol,
+  }));
 }
 
 export function generateMetadata({ params }: PageProps) {
-  const stock = getStockBy(params.market, params.symbol);
+  const stock = getStockBy(params?.market, params?.symbol);
   if (!stock) return { title: "종목을 찾을 수 없습니다 | 스톡리포트" };
   return {
     title: `${stock.name} (${stock.symbol}) 리포트 | 스톡리포트`,
@@ -37,8 +40,18 @@ const tableOfContents = [
 ];
 
 export default function StockReportPage({ params }: PageProps) {
-  const stock = getStockBy(params.market, params.symbol);
+  const stock = getStockBy(params?.market, params?.symbol);
   if (!stock) notFound();
+  const disclosures = stock.recentDisclosures ?? [];
+  const news = stock.recentNews ?? [];
+  const revenue = stock.revenueStructure ?? [];
+  const metrics = stock.financialMetrics ?? [];
+  const sourceLinks = stock.sourceLinks ?? [];
+  const checkpoints = {
+    disclosure: stock.checkpoints?.disclosure ?? [],
+    earnings: stock.checkpoints?.earnings ?? [],
+    news: stock.checkpoints?.news ?? [],
+  };
 
   return (
     <div className="bg-slate-50/60">
@@ -145,10 +158,14 @@ export default function StockReportPage({ params }: PageProps) {
                   </p>
                   <ul className="mt-2 space-y-1.5">
                     {[
-                      ...stock.recentDisclosures.slice(0, 1).map((d) => `공시: ${d.title}`),
-                      ...stock.recentNews.slice(0, 1).map((n) => `뉴스: ${n.title}`),
-                      `실적: ${stock.earningsSummary.period} 발표`,
-                    ].map((line) => (
+                      ...disclosures.slice(0, 1).map((d) => `공시: ${d.title}`),
+                      ...news.slice(0, 1).map((n) => `뉴스: ${n.title}`),
+                      stock.earningsSummary
+                        ? `실적: ${stock.earningsSummary.period} 발표`
+                        : null,
+                    ]
+                      .filter((v): v is string => Boolean(v))
+                      .map((line) => (
                       <li
                         key={line}
                         className="flex items-start gap-2 text-sm text-slate-700"
@@ -165,8 +182,8 @@ export default function StockReportPage({ params }: PageProps) {
                   </p>
                   <ul className="mt-2 space-y-1.5">
                     {[
-                      ...stock.checkpoints.earnings.slice(0, 2),
-                      ...stock.checkpoints.news.slice(0, 1),
+                      ...checkpoints.earnings.slice(0, 2),
+                      ...checkpoints.news.slice(0, 1),
                     ].map((c) => (
                       <li
                         key={c}
@@ -200,7 +217,7 @@ export default function StockReportPage({ params }: PageProps) {
                     주요 제품/서비스
                   </h4>
                   <ul className="mt-3 space-y-1.5">
-                    {stock.keyProducts.map((p) => (
+                    {(stock.keyProducts ?? []).map((p) => (
                       <li
                         key={p}
                         className="flex items-start gap-2 text-sm text-slate-700"
@@ -216,7 +233,7 @@ export default function StockReportPage({ params }: PageProps) {
                     주요 시장
                   </h4>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {stock.keyMarkets.map((m) => (
+                    {(stock.keyMarkets ?? []).map((m) => (
                       <span key={m} className="badge-slate">
                         {m}
                       </span>
@@ -239,7 +256,7 @@ export default function StockReportPage({ params }: PageProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
-                      {stock.revenueStructure.map((r) => (
+                      {revenue.map((r) => (
                         <tr key={r.name}>
                           <td className="px-4 py-2 font-medium text-slate-900">
                             {r.name}
@@ -265,9 +282,15 @@ export default function StockReportPage({ params }: PageProps) {
               title="최근 공시 요약"
               description="최근 공시의 핵심 내용을 요약하고, 원문에서 확인해야 할 항목을 정리합니다."
             >
-              {stock.recentDisclosures.map((d) => (
-                <DisclosureCard key={d.id} disclosure={d} />
-              ))}
+              {disclosures.length === 0 ? (
+                <div className="card p-5 text-sm text-slate-600">
+                  최근 공시 데이터가 아직 준비되지 않았습니다.
+                </div>
+              ) : (
+                disclosures.map((d) => (
+                  <DisclosureCard key={d.id} disclosure={d} />
+                ))
+              )}
             </ReportSection>
 
             {/* D. News */}
@@ -277,9 +300,13 @@ export default function StockReportPage({ params }: PageProps) {
               title="최근 뉴스 요약"
               description="주요 언론 보도를 요약하고, 관련 키워드를 정리합니다."
             >
-              {stock.recentNews.map((n) => (
-                <NewsCard key={n.id} news={n} />
-              ))}
+              {news.length === 0 ? (
+                <div className="card p-5 text-sm text-slate-600">
+                  최근 뉴스 데이터가 아직 준비되지 않았습니다.
+                </div>
+              ) : (
+                news.map((n) => <NewsCard key={n.id} news={n} />)
+              )}
             </ReportSection>
 
             {/* E. Earnings */}
@@ -289,7 +316,13 @@ export default function StockReportPage({ params }: PageProps) {
               title="최근 실적 요약"
               description="분기 실적의 핵심 수치와 전년 동기 대비 변화를 정리합니다. 숫자는 모두 목업 데이터입니다."
             >
-              <EarningsCard earnings={stock.earningsSummary} />
+              {stock.earningsSummary ? (
+                <EarningsCard earnings={stock.earningsSummary} />
+              ) : (
+                <div className="card p-5 text-sm text-slate-600">
+                  최근 실적 데이터가 아직 준비되지 않았습니다.
+                </div>
+              )}
             </ReportSection>
 
             {/* F. Financial Metrics */}
@@ -300,7 +333,7 @@ export default function StockReportPage({ params }: PageProps) {
               description="매출 성장률, 영업이익률, 부채 관련 지표, 현금흐름을 정리합니다. PER/PBR 등은 참고 지표로만 표시됩니다."
             >
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {stock.financialMetrics.map((m) => (
+                {metrics.map((m) => (
                   <MetricCard key={m.label} metric={m} />
                 ))}
               </div>
@@ -315,9 +348,9 @@ export default function StockReportPage({ params }: PageProps) {
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {[
-                  { title: "공시에서 확인할 점", items: stock.checkpoints.disclosure },
-                  { title: "실적에서 확인할 점", items: stock.checkpoints.earnings },
-                  { title: "뉴스 흐름에서 확인할 점", items: stock.checkpoints.news },
+                  { title: "공시에서 확인할 점", items: checkpoints.disclosure },
+                  { title: "실적에서 확인할 점", items: checkpoints.earnings },
+                  { title: "뉴스 흐름에서 확인할 점", items: checkpoints.news },
                 ].map((box) => (
                   <div key={box.title} className="card p-5">
                     <h4 className="text-sm font-semibold text-slate-900">
@@ -348,7 +381,7 @@ export default function StockReportPage({ params }: PageProps) {
             >
               <div className="card p-5">
                 <ul className="divide-y divide-slate-200">
-                  {stock.sourceLinks.map((s) => (
+                  {sourceLinks.map((s) => (
                     <li
                       key={s.label}
                       className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"

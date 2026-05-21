@@ -30,7 +30,7 @@ function MarketBriefingCard({ briefing }: { briefing: MarketBriefing }) {
       </p>
 
       <div className="mt-5 grid grid-cols-3 gap-3">
-        {briefing.indices.map((i) => (
+        {(briefing.indices ?? []).map((i) => (
           <div
             key={i.name}
             className="rounded-lg border border-slate-200 bg-slate-50 p-3"
@@ -55,7 +55,7 @@ function MarketBriefingCard({ briefing }: { briefing: MarketBriefing }) {
           주요 정보 흐름
         </p>
         <ul className="mt-2 space-y-1.5">
-          {briefing.topMoves.map((m) => (
+          {(briefing.topMoves ?? []).map((m) => (
             <li
               key={m}
               className="flex items-start gap-2 text-sm text-slate-700"
@@ -97,7 +97,7 @@ export default function BriefingPage() {
             언론사 보도 중 시장에서 자주 언급된 주제를 정리합니다.
           </p>
           <ul className="mt-4 divide-y divide-slate-200">
-            {mainNews.map((n) => (
+            {(mainNews ?? []).map((n) => (
               <li key={n.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex items-center gap-2">
                   {n.tag && <span className="badge-slate">{n.tag}</span>}
@@ -122,7 +122,7 @@ export default function BriefingPage() {
             한국 DART·미국 SEC 등의 주요 공시 요약입니다.
           </p>
           <ul className="mt-4 divide-y divide-slate-200">
-            {mainDisclosures.map((d) => (
+            {(mainDisclosures ?? []).map((d) => (
               <li key={d.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex items-center gap-2">
                   {d.tag && <span className="badge-brand">{d.tag}</span>}
@@ -149,7 +149,7 @@ export default function BriefingPage() {
             주요 실적 발표 일정
           </h3>
           <ul className="mt-4 divide-y divide-slate-200">
-            {earningsSchedule.map((s) => (
+            {(earningsSchedule ?? []).map((s) => (
               <li
                 key={s.id}
                 className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
@@ -171,7 +171,7 @@ export default function BriefingPage() {
             주요 경제지표 일정
           </h3>
           <ul className="mt-4 divide-y divide-slate-200">
-            {economicSchedule.map((s) => (
+            {(economicSchedule ?? []).map((s) => (
               <li
                 key={s.id}
                 className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
@@ -198,7 +198,7 @@ export default function BriefingPage() {
           이 목록은 추천이 아니며, 사용자들이 자주 확인한 종목을 정리한 것입니다.
         </p>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {topViewedStocks.map((t) => (
+          {(topViewedStocks ?? []).map((t) => (
             <Link
               key={`${t.market}-${t.symbol}`}
               href={getStockReportHref(t.market, t.symbol)}

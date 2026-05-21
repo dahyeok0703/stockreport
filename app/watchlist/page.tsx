@@ -5,6 +5,19 @@ import { mockWatchlist } from "@/lib/mockBriefing";
 import { getStockReportHref } from "@/lib/utils";
 
 export default function WatchlistPage() {
+  const watchlist = mockWatchlist ?? [];
+  const totalDisclosures = watchlist.reduce(
+    (a, b) => a + (b.newDisclosureCount ?? 0),
+    0,
+  );
+  const totalNews = watchlist.reduce(
+    (a, b) => a + (b.newNewsCount ?? 0),
+    0,
+  );
+  const totalEarnings = watchlist.filter((w) =>
+    Boolean(w.upcomingEarnings),
+  ).length;
+
   return (
     <div className="container-page py-12 sm:py-16">
       <SectionTitle
@@ -53,22 +66,19 @@ export default function WatchlistPage() {
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-xs text-slate-500">신규 공시</p>
             <p className="mt-1 text-xl font-bold text-slate-900">
-              {mockWatchlist.reduce((a, b) => a + b.newDisclosureCount, 0)}건
+              {totalDisclosures}건
             </p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-xs text-slate-500">신규 뉴스</p>
             <p className="mt-1 text-xl font-bold text-slate-900">
-              {mockWatchlist.reduce((a, b) => a + b.newNewsCount, 0)}건
+              {totalNews}건
             </p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-xs text-slate-500">예정된 실적 발표</p>
             <p className="mt-1 text-xl font-bold text-slate-900">
-              {
-                mockWatchlist.filter((w) => Boolean(w.upcomingEarnings)).length
-              }
-              건
+              {totalEarnings}건
             </p>
           </div>
         </div>
@@ -89,7 +99,7 @@ export default function WatchlistPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {mockWatchlist.map((w) => (
+              {watchlist.map((w) => (
                 <tr
                   key={`${w.market}-${w.symbol}`}
                   className="flex flex-col gap-2 p-4 sm:table-row sm:p-0"

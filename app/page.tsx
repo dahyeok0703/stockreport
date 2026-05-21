@@ -58,7 +58,7 @@ const valueProps = [
 ];
 
 export default function HomePage() {
-  const popular = mockStocks.slice(0, 4);
+  const popular = (mockStocks ?? []).slice(0, 4);
 
   return (
     <div>
@@ -151,11 +151,20 @@ export default function HomePage() {
             </Link>
           }
         />
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {popular.map((stock) => (
-            <StockCard key={`${stock.market}-${stock.symbol}`} stock={stock} />
-          ))}
-        </div>
+        {popular.length === 0 ? (
+          <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-600">
+            표시할 종목 데이터가 아직 준비되지 않았습니다.
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {popular.map((stock) => (
+              <StockCard
+                key={`${stock.market}-${stock.symbol}`}
+                stock={stock}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* DISCLAIMER */}

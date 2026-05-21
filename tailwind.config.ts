@@ -28,7 +28,6 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          "var(--font-sans)",
           "system-ui",
           "-apple-system",
           "Segoe UI",

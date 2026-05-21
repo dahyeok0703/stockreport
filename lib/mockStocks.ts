@@ -878,8 +878,18 @@ export const mockStocks: Stock[] = [
 
 void sharedDisclaimerCheckpoints;
 
-export function getStockBy(market: string, symbol: string): Stock | undefined {
-  return mockStocks.find(
+export function isMarketCode(value: unknown): value is MarketCode {
+  return value === "kr" || value === "us";
+}
+
+export function getStockBy(
+  market: string | undefined,
+  symbol: string | undefined,
+): Stock | undefined {
+  if (!market || !symbol) return undefined;
+  if (!isMarketCode(market)) return undefined;
+  const list = Array.isArray(mockStocks) ? mockStocks : [];
+  return list.find(
     (s) =>
       s.market === market &&
       s.symbol.toLowerCase() === symbol.toLowerCase(),
@@ -887,8 +897,9 @@ export function getStockBy(market: string, symbol: string): Stock | undefined {
 }
 
 export function searchStocks(query: string, market?: MarketCode | "all") {
-  const q = query.trim().toLowerCase();
-  return mockStocks.filter((s) => {
+  const q = (query ?? "").trim().toLowerCase();
+  const list = Array.isArray(mockStocks) ? mockStocks : [];
+  return list.filter((s) => {
     if (market && market !== "all" && s.market !== market) return false;
     if (!q) return true;
     return (

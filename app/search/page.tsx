@@ -16,13 +16,13 @@ const filters: { value: Filter; label: string }[] = [
 
 function SearchContent() {
   const searchParams = useSearchParams();
-  const initial = searchParams.get("q") ?? "";
+  const initial = searchParams?.get("q") ?? "";
   const [query, setQuery] = useState(initial);
   const [filter, setFilter] = useState<Filter>("all");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return mockStocks.filter((s) => {
+    return (mockStocks ?? []).filter((s) => {
       if (filter !== "all" && s.market !== filter) return false;
       if (!q) return true;
       return (
