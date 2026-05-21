@@ -1,87 +1,46 @@
+"use client";
+
 import Link from "next/link";
 import SectionTitle from "@/components/common/SectionTitle";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
 import RemoveWatchlistButton from "@/components/stocks/RemoveWatchlistButton";
-import { getCurrentAuth } from "@/lib/auth";
-import { getPlanLimit } from "@/lib/planLimits";
-import { getMyWatchlist } from "@/lib/watchlist";
 import { getStockReportHref } from "@/lib/utils";
+import { useLocalWatchlist } from "@/lib/watchlistLocal";
 
-export const metadata = {
-  title: "관심종목 | 스톡리포트",
-};
+/**
+ * 데모 모드 관심종목 페이지 — 브라우저 localStorage 기반.
+ * Supabase 인증·서버 액션을 사용하지 않습니다. 1B의 서버 사이드 버전은
+ * lib/watchlist.ts에 보존되어 있으며, 추후 인증이 켜지면 다시 사용할 수 있습니다.
+ */
 
-export const dynamic = "force-dynamic";
+// 종목별 가짜 신규 카운트 — 데모용. 종목명 길이를 시드로 결정론적 값 생성.
+function demoCounts(key: string): {
+  newDisclosure: number;
+  newNews: number;
+  upcomingEarnings?: string;
+} {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return {
+    newDisclosure: h % 4,
+    newNews: 1 + ((h >> 3) % 6),
+    upcomingEarnings: h % 3 === 0 ? "다음 분기 발표 예정" : undefined,
+  };
+}
 
-export default async function WatchlistPage() {
-  const { user, profile, configured } = await getCurrentAuth();
-
-  // 비로그인 사용자 안내
-  if (!user) {
-    return (
-      <div className="container-page py-12 sm:py-16">
-        <SectionTitle
-          eyebrow="관심종목"
-          title="관심종목 정보를 한눈에"
-          description="관심 있는 종목의 신규 공시·뉴스·실적 일정을 한 곳에서 확인할 수 있습니다."
-        />
-
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-card">
-          <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.8}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.365 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"
-              />
-            </svg>
-          </div>
-          <h2 className="mt-4 text-lg font-bold text-slate-900">
-            관심종목 기능을 사용하려면 로그인이 필요합니다.
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            로그인하면 종목을 저장하고 공시·뉴스·실적 흐름을 한 곳에서 추적할
-            수 있습니다.
-          </p>
-          {!configured && (
-            <p className="mt-3 text-xs text-amber-700">
-              현재 Supabase 환경 변수가 설정되지 않아 인증 기능이 비활성화된
-              상태입니다.
-            </p>
-          )}
-          <div className="mt-6 flex items-center justify-center gap-2">
-            <Link href="/login?next=/watchlist" className="btn-primary">
-              로그인
-            </Link>
-            <Link href="/signup?next=/watchlist" className="btn-outline">
-              회원가입
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-10">
-          <DisclaimerBox />
-        </div>
-      </div>
-    );
-  }
-
-  const items = await getMyWatchlist();
-  const limit = getPlanLimit(profile?.plan);
+export default function WatchlistPage() {
+  const { items, hydrated } = useLocalWatchlist();
 
   return (
     <div className="container-page py-12 sm:py-16">
       <SectionTitle
         eyebrow="관심종목"
         title="내 관심종목"
-        description={`현재 요금제 ${limit.label} · ${items.length} / ${limit.watchlistMax}개 저장됨`}
+        description={
+          hydrated
+            ? `이 브라우저에 저장된 관심종목 ${items.length}개`
+            : "관심종목을 불러오는 중…"
+        }
         action={
           <Link href="/search" className="btn-outline text-sm">
             종목 추가하기
@@ -89,7 +48,21 @@ export default async function WatchlistPage() {
         }
       />
 
-      {items.length === 0 ? (
+      <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
+        현재 데모 모드입니다. 관심종목은 이 기기 브라우저(localStorage)에만 저장되며,
+        로그인·동기화·알림 기능은 추후 단계에서 제공될 예정입니다.
+      </div>
+
+      {!hydrated ? (
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-32 animate-pulse rounded-xl border border-slate-200 bg-white"
+            />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
           <h3 className="text-base font-semibold text-slate-900">
             아직 관심종목이 없습니다.
@@ -104,81 +77,138 @@ export default async function WatchlistPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
-          <table className="w-full text-sm">
-            <thead className="hidden bg-slate-50 text-xs font-medium uppercase tracking-wider text-slate-500 sm:table-header-group">
-              <tr>
-                <th className="px-4 py-3 text-left">종목</th>
-                <th className="px-4 py-3 text-left">시장</th>
-                <th className="px-4 py-3 text-left">업종</th>
-                <th className="px-4 py-3 text-right">동작</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {items.map((w) => (
-                <tr
-                  key={w.id}
-                  className="flex flex-col gap-2 p-4 sm:table-row sm:p-0"
+        <>
+          {/* 요약 카드 */}
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SummaryCard
+              label="신규 공시 (데모)"
+              value={items.reduce(
+                (a, b) => a + demoCounts(b.key).newDisclosure,
+                0,
+              )}
+              suffix="건"
+            />
+            <SummaryCard
+              label="신규 뉴스 (데모)"
+              value={items.reduce(
+                (a, b) => a + demoCounts(b.key).newNews,
+                0,
+              )}
+              suffix="건"
+            />
+            <SummaryCard
+              label="다가오는 실적 (데모)"
+              value={
+                items.filter((i) => demoCounts(i.key).upcomingEarnings).length
+              }
+              suffix="건"
+            />
+          </div>
+
+          {/* 카드 그리드 */}
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((w) => {
+              const c = demoCounts(w.key);
+              return (
+                <article
+                  key={w.key}
+                  className="card flex flex-col p-5"
                 >
-                  <td className="sm:px-4 sm:py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-slate-900">
-                        {w.name}
-                      </span>
-                      <span className="badge-outline">{w.symbol}</span>
-                    </div>
-                  </td>
-                  <td className="sm:px-4 sm:py-3">
-                    <span className="badge-slate">
-                      {w.market === "kr" ? "한국" : "미국"}
-                    </span>
-                    {w.exchange && (
-                      <span className="ml-1 text-xs text-slate-500">
-                        {w.exchange}
-                      </span>
-                    )}
-                  </td>
-                  <td className="text-sm text-slate-600 sm:px-4 sm:py-3">
-                    {w.sector ?? "—"}
-                  </td>
-                  <td className="sm:px-4 sm:py-3 sm:text-right">
-                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                      <Link
-                        href={`${getStockReportHref(
-                          w.market as "kr" | "us",
-                          w.symbol,
-                        )}#ai-summary`}
-                        className="btn-outline text-xs"
-                        title="리포트 페이지의 AI 정보 요약 섹션으로 이동합니다"
-                      >
-                        AI 정보 요약 보기
-                      </Link>
-                      <Link
-                        href={getStockReportHref(
-                          w.market as "kr" | "us",
-                          w.symbol,
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-slate-900">
+                          {w.name}
+                        </h3>
+                        <span className="badge-outline">{w.symbol}</span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className="badge-brand">
+                          {w.market === "kr" ? "한국" : "미국"}
+                        </span>
+                        {w.exchange && (
+                          <span className="badge-slate">{w.exchange}</span>
                         )}
-                        className="btn-ghost text-xs"
-                        title="리포트 페이지에서 최신 데이터를 다시 불러옵니다"
-                      >
-                        데이터 새로고침
-                      </Link>
-                      <RemoveWatchlistButton
-                        market={w.market}
-                        symbol={w.symbol}
-                      />
+                        {w.sector && (
+                          <span className="text-xs text-slate-500">
+                            {w.sector}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                    <Mini label="신규 공시" value={c.newDisclosure} />
+                    <Mini label="신규 뉴스" value={c.newNews} />
+                    <Mini
+                      label="실적"
+                      value={c.upcomingEarnings ? "예정" : "—"}
+                    />
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={getStockReportHref(w.market, w.symbol)}
+                        className="btn-outline text-xs"
+                      >
+                        리포트 보기
+                      </Link>
+                      <Link
+                        href={`${getStockReportHref(w.market, w.symbol)}#ai-summary`}
+                        className="btn-ghost text-xs"
+                      >
+                        AI 정보 요약
+                      </Link>
+                    </div>
+                    <RemoveWatchlistButton market={w.market} symbol={w.symbol} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <div className="mt-10">
         <DisclaimerBox />
       </div>
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: number | string;
+  suffix?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-slate-900">
+        {value}
+        {suffix && (
+          <span className="ml-1 text-sm font-normal text-slate-500">
+            {suffix}
+          </span>
+        )}
+      </p>
+    </div>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="rounded-md bg-slate-50 px-2 py-2">
+      <p className="text-[10px] text-slate-500">{label}</p>
+      <p className="mt-0.5 text-sm font-semibold text-slate-900 tabular-nums">
+        {value}
+      </p>
     </div>
   );
 }

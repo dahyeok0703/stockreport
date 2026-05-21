@@ -101,20 +101,50 @@ export interface ScheduleItem {
   date: string;
   title: string;
   region: "한국" | "미국" | "글로벌";
-  type: "실적" | "경제지표";
+  type: "실적" | "경제지표" | "공시" | "배당·주총";
+  note?: string;
 }
 
 export const earningsSchedule: ScheduleItem[] = [
-  { id: "e1", date: "2026-05-22", title: "Nvidia 분기 실적 발표", region: "미국", type: "실적" },
-  { id: "e2", date: "2026-05-23", title: "Palantir 컨퍼런스", region: "미국", type: "실적" },
-  { id: "e3", date: "2026-05-27", title: "현대차 IR Day (목업)", region: "한국", type: "실적" },
+  { id: "e1", date: "2026-05-22", title: "Nvidia 분기 실적 발표", region: "미국", type: "실적", note: "장 마감 후" },
+  { id: "e2", date: "2026-05-23", title: "Palantir 투자자 컨퍼런스", region: "미국", type: "실적" },
+  { id: "e3", date: "2026-05-24", title: "AMD 분기 실적 발표 (목업)", region: "미국", type: "실적" },
+  { id: "e4", date: "2026-05-27", title: "현대차 IR Day (목업)", region: "한국", type: "실적" },
+  { id: "e5", date: "2026-05-28", title: "SK하이닉스 컨퍼런스콜 (목업)", region: "한국", type: "실적" },
+  { id: "e6", date: "2026-05-29", title: "Microsoft 투자자의 날 (목업)", region: "미국", type: "실적" },
+  { id: "e7", date: "2026-06-02", title: "셀트리온 IR (목업)", region: "한국", type: "실적" },
 ];
 
 export const economicSchedule: ScheduleItem[] = [
   { id: "m1", date: "2026-05-21", title: "미국 FOMC 의사록 공개", region: "미국", type: "경제지표" },
   { id: "m2", date: "2026-05-23", title: "한국 5월 소비자심리지수", region: "한국", type: "경제지표" },
   { id: "m3", date: "2026-05-24", title: "미국 5월 PMI 예비치", region: "미국", type: "경제지표" },
+  { id: "m4", date: "2026-05-27", title: "한국 1분기 GDP 잠정치", region: "한국", type: "경제지표" },
+  { id: "m5", date: "2026-05-30", title: "미국 4월 PCE 물가지수", region: "미국", type: "경제지표" },
+  { id: "m6", date: "2026-06-01", title: "글로벌 5월 제조업 PMI", region: "글로벌", type: "경제지표" },
 ];
+
+export const disclosureSchedule: ScheduleItem[] = [
+  { id: "ds1", date: "2026-05-22", title: "코스피 200 정기변경 발표", region: "한국", type: "공시" },
+  { id: "ds2", date: "2026-05-23", title: "한국 5월 공매도 잔고 공시", region: "한국", type: "공시" },
+  { id: "ds3", date: "2026-05-28", title: "미국 4월 13F 공시 마감", region: "미국", type: "공시" },
+  { id: "ds4", date: "2026-05-30", title: "셀트리온 임상 결과 공시 (목업)", region: "한국", type: "공시" },
+];
+
+export const dividendSchedule: ScheduleItem[] = [
+  { id: "dv1", date: "2026-05-26", title: "Apple 배당 지급 기준일 (목업)", region: "미국", type: "배당·주총" },
+  { id: "dv2", date: "2026-05-29", title: "삼성전자 분기 배당 공시 (목업)", region: "한국", type: "배당·주총" },
+  { id: "dv3", date: "2026-06-03", title: "현대차 주주총회 (목업)", region: "한국", type: "배당·주총" },
+];
+
+export function getAllScheduleItems(): ScheduleItem[] {
+  return [
+    ...earningsSchedule,
+    ...economicSchedule,
+    ...disclosureSchedule,
+    ...dividendSchedule,
+  ];
+}
 
 export interface TopViewedStock {
   name: string;

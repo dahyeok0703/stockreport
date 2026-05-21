@@ -11,9 +11,6 @@ import NormalizedNewsCard from "@/components/stocks/NormalizedNewsCard";
 import FinancialTable from "@/components/stocks/FinancialTable";
 import EarningsBox from "@/components/stocks/EarningsBox";
 import { getStockReport } from "@/lib/data/stockDataService";
-import { getCurrentAuth } from "@/lib/auth";
-import { getTodayUsageStatus } from "@/lib/usage";
-import { isInMyWatchlist } from "@/lib/watchlist";
 import { getStockBy } from "@/lib/mockStocks";
 import { getRuntimeFlags } from "@/lib/config/env";
 import { isAiCallable } from "@/lib/ai/config";
@@ -56,19 +53,13 @@ const tableOfContents = [
 export default async function StockReportPage({ params }: PageProps) {
   if (!isMarket(params.market)) notFound();
 
-  const [report, { user }, usage] = await Promise.all([
-    getStockReport(params.market, params.symbol),
-    getCurrentAuth(),
-    getTodayUsageStatus(),
-  ]);
+  const report = await getStockReport(params.market, params.symbol);
   if (!report) notFound();
 
-  const alreadyInWatchlist = await isInMyWatchlist(
-    report.stock.market,
-    report.stock.symbol,
-  );
-  const isLoggedIn = Boolean(user);
-  const limitExceeded = isLoggedIn && usage.exceeded;
+  // 데모 모드: 로그인·사용량 추적·서버 사이드 관심종목 조회를 사용하지 않습니다.
+  // 관심종목 상태는 클라이언트 컴포넌트(WatchlistButton)가 localStorage에서 직접 읽습니다.
+  const isLoggedIn = false;
+  const limitExceeded = false;
   const flags = getRuntimeFlags();
   const aiEnabled = isAiCallable();
 
@@ -138,8 +129,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 name={report.stock.name}
                 exchange={report.stock.exchange}
                 sector={report.stock.sector}
-                initialInWatchlist={alreadyInWatchlist}
-                isLoggedIn={isLoggedIn}
               />
             </div>
           </div>
@@ -175,10 +164,7 @@ export default async function StockReportPage({ params }: PageProps) {
       {/* BODY */}
       {limitExceeded ? (
         <div className="container-page py-10">
-          <ReportLimitBlock
-            limit={usage.limit}
-            used={usage.usage?.report_views ?? 0}
-          />
+          <ReportLimitBlock limit={3} used={3} />
         </div>
       ) : (
         <div className="container-page py-10">

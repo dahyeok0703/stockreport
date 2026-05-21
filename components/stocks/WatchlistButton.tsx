@@ -1,19 +1,31 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { addToWatchlist, removeFromWatchlist } from "@/lib/watchlist";
+/**
+ * 데모 모드 관심종목 추가/해제 버튼 — localStorage 기반.
+ *
+ * 1B에서 Supabase 서버 액션을 호출하던 버전을 대체합니다. 서버 인증/사용량
+ * 제한을 요구하지 않고, 같은 브라우저 내에서만 보존됩니다. 후속 단계에서
+ * Supabase가 다시 켜지면 lib/watchlist.ts 액션 호출로 되돌릴 수 있도록
+ * 컴포넌트 이름과 props는 동일하게 유지합니다.
+ */
+
+import { useEffect, useState } from "react";
+import {
+  addLocalWatchlist,
+  isInLocalWatchlist,
+  removeLocalWatchlist,
+} from "@/lib/watchlistLocal";
 
 interface WatchlistButtonProps {
-  market: string;
+  market: "kr" | "us";
   symbol: string;
   name: string;
   exchange?: string | null;
   sector?: string | null;
-  /** initial known state — fetched on the server */
-  initialInWatchlist: boolean;
-  /** when false, clicking redirects to /login?next=… */
-  isLoggedIn: boolean;
+  /** 1B에서 사용하던 props — 데모 모드에서는 무시되지만 호출 호환을 위해 유지 */
+  initialInWatchlist?: boolean;
+  /** 1B 호환 — 데모 모드에서는 항상 true 취급 (로그인 강제 안 함) */
+  isLoggedIn?: boolean;
   variant?: "default" | "compact";
 }
 
@@ -23,53 +35,54 @@ export default function WatchlistButton({
   name,
   exchange,
   sector,
-  initialInWatchlist,
-  isLoggedIn,
   variant = "default",
 }: WatchlistButtonProps) {
-  const router = useRouter();
-  const [inList, setInList] = useState(initialInWatchlist);
-  const [pending, startTransition] = useTransition();
+  const [hydrated, setHydrated] = useState(false);
+  const [inList, setInList] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setInList(isInLocalWatchlist(market, symbol));
+    setHydrated(true);
+    const onChange = () => setInList(isInLocalWatchlist(market, symbol));
+    window.addEventListener("storage", onChange);
+    window.addEventListener("stockreport:watchlist:changed", onChange);
+    return () => {
+      window.removeEventListener("storage", onChange);
+      window.removeEventListener("stockreport:watchlist:changed", onChange);
+    };
+  }, [market, symbol]);
 
   function handleClick() {
     setError(null);
-    if (!isLoggedIn) {
-      const next = encodeURIComponent(`/stocks/${market}/${symbol}`);
-      router.push(`/login?next=${next}`);
-      return;
-    }
-    startTransition(async () => {
+    setPending(true);
+    try {
       if (inList) {
-        const res = await removeFromWatchlist(market, symbol);
-        if (!res.ok) {
-          setError(res.error ?? "삭제 실패");
-          return;
-        }
+        removeLocalWatchlist(market, symbol);
         setInList(false);
       } else {
-        const res = await addToWatchlist({
-          market,
-          symbol,
-          name,
-          exchange,
-          sector,
-        });
+        const res = addLocalWatchlist({ market, symbol, name, exchange, sector });
         if (!res.ok) {
-          setError(res.error ?? "추가 실패");
-          // If the row already exists, surface the actual state.
-          if (res.error?.includes("이미")) setInList(true);
+          if (res.reason === "duplicate") {
+            setInList(true);
+          } else if (res.reason === "limit") {
+            setError("데모 모드에서는 관심종목 50개까지 저장할 수 있습니다.");
+          }
           return;
         }
         setInList(true);
       }
-    });
+    } finally {
+      setPending(false);
+    }
   }
 
   const sizing =
-    variant === "compact"
-      ? "text-xs px-2.5 py-1.5"
-      : "text-sm px-4 py-2";
+    variant === "compact" ? "text-xs px-2.5 py-1.5" : "text-sm px-4 py-2";
+
+  // SSR 단계에서는 항상 "추가" 상태로 렌더 → mount 후 실제 상태 반영
+  const showActive = hydrated && inList;
 
   return (
     <div className="inline-flex flex-col items-end gap-1">
@@ -78,16 +91,17 @@ export default function WatchlistButton({
         onClick={handleClick}
         disabled={pending}
         className={`inline-flex items-center gap-1.5 rounded-md font-medium transition disabled:opacity-60 ${sizing} ${
-          inList
+          showActive
             ? "border border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100"
             : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
-        aria-pressed={inList}
+        aria-pressed={showActive}
+        title="이 기기 브라우저에 저장됩니다 (데모 모드)"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill={inList ? "currentColor" : "none"}
+          fill={showActive ? "currentColor" : "none"}
           stroke="currentColor"
           strokeWidth={1.8}
           className="h-4 w-4"
@@ -100,7 +114,7 @@ export default function WatchlistButton({
         </svg>
         {pending
           ? "처리 중…"
-          : inList
+          : showActive
             ? "관심종목 해제"
             : "관심종목 추가"}
       </button>

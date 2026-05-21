@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { removeFromWatchlist } from "@/lib/watchlist";
+/**
+ * 관심종목 페이지에서 사용하는 삭제 버튼 — localStorage 기반.
+ */
+
+import { useState } from "react";
+import { removeLocalWatchlist } from "@/lib/watchlistLocal";
 
 interface RemoveWatchlistButtonProps {
   market: string;
@@ -12,30 +16,26 @@ export default function RemoveWatchlistButton({
   market,
   symbol,
 }: RemoveWatchlistButtonProps) {
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   function handleClick() {
-    setError(null);
-    startTransition(async () => {
-      const res = await removeFromWatchlist(market, symbol);
-      if (!res.ok) setError(res.error ?? "삭제 실패");
-    });
+    if (market !== "kr" && market !== "us") return;
+    setPending(true);
+    try {
+      removeLocalWatchlist(market, symbol);
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
-    <div className="inline-flex flex-col items-end gap-1">
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={pending}
-        className="rounded-md border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-50 disabled:opacity-60"
-      >
-        {pending ? "삭제 중…" : "삭제"}
-      </button>
-      {error && (
-        <span className="text-xs text-rose-600">{error}</span>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={pending}
+      className="rounded-md border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-50 disabled:opacity-60"
+    >
+      {pending ? "삭제 중…" : "삭제"}
+    </button>
   );
 }

@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import SectionTitle from "@/components/common/SectionTitle";
 import SearchClient from "@/components/stocks/SearchClient";
-import { getCurrentAuth } from "@/lib/auth";
-import { getMyWatchlistSymbolKeys } from "@/lib/watchlist";
 
 export const metadata = {
   title: "종목 검색 | 스톡리포트",
@@ -10,10 +8,9 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SearchPage() {
-  const { user } = await getCurrentAuth();
-  const keys = user ? await getMyWatchlistSymbolKeys() : new Set<string>();
-
+export default function SearchPage() {
+  // 데모 모드: 인증·서버 사이드 관심종목 조회를 사용하지 않습니다.
+  // 관심종목 상태는 SearchClient 내부에서 localStorage로 직접 판단합니다.
   return (
     <div className="container-page py-12 sm:py-16">
       <SectionTitle
@@ -26,10 +23,7 @@ export default async function SearchPage() {
           <div className="mt-8 h-32 animate-pulse rounded-2xl border border-slate-200 bg-white" />
         }
       >
-        <SearchClient
-          isLoggedIn={Boolean(user)}
-          watchlistKeys={Array.from(keys)}
-        />
+        <SearchClient />
       </Suspense>
     </div>
   );
