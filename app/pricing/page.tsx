@@ -53,7 +53,6 @@ const plans: PricingPlan[] = [
       "공시 발생 알림",
       "실적 발표 요약",
       "종목 비교 기능",
-      "PDF 리포트 저장",
     ],
     cta: "프로 시작하기",
     ctaHref: "/signup?plan=pro",

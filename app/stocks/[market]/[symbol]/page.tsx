@@ -134,7 +134,28 @@ export default async function StockReportPage({ params }: PageProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/compare?symbols=${report.stock.market}:${report.stock.symbol}`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                title="다른 종목과 비교"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h7M4 12h7M4 18h7M14 6h6M14 12h6M14 18h6"
+                  />
+                </svg>
+                종목 비교
+              </Link>
               <WatchlistButton
                 market={report.stock.market}
                 symbol={report.stock.symbol}

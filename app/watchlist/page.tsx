@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import SectionTitle from "@/components/common/SectionTitle";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
 import RemoveWatchlistButton from "@/components/stocks/RemoveWatchlistButton";
 import { getStockReportHref } from "@/lib/utils";
 import { useLocalWatchlist } from "@/lib/watchlistLocal";
+import { getAlertsForSymbols, type AlertItem } from "@/lib/alertsFeed";
 
 /**
  * 데모 모드 관심종목 페이지 — 브라우저 localStorage 기반.
@@ -30,6 +32,12 @@ function demoCounts(key: string): {
 
 export default function WatchlistPage() {
   const { items, hydrated } = useLocalWatchlist();
+
+  const briefingAlerts = useMemo<AlertItem[]>(() => {
+    if (items.length === 0) return [];
+    const keys = new Set(items.map((i) => `${i.market}:${i.symbol.toLowerCase()}`));
+    return getAlertsForSymbols(keys).slice(0, 6);
+  }, [items]);
 
   return (
     <div className="container-page py-12 sm:py-16">
@@ -99,6 +107,78 @@ export default function WatchlistPage() {
               suffix="건"
             />
           </div>
+
+          {/* 관심종목 일일 브리핑 */}
+          {briefingAlerts.length > 0 && (
+            <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+              <header className="flex items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    오늘의 관심종목 브리핑
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    관심종목 관련 최근 공시·실적·뉴스 흐름을 요약했습니다.
+                  </p>
+                </div>
+                <Link
+                  href="/alerts"
+                  className="hidden text-xs font-medium text-brand-700 hover:underline sm:inline"
+                >
+                  전체 알림 보기 →
+                </Link>
+              </header>
+              <ul className="mt-4 divide-y divide-slate-200">
+                {briefingAlerts.map((a) => (
+                  <li key={a.id} className="py-3 first:pt-0 last:pb-0">
+                    <Link
+                      href={a.reportHref}
+                      className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${
+                              a.type === "filing"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                : a.type === "earnings"
+                                  ? "border-brand-200 bg-brand-50 text-brand-800"
+                                  : "border-amber-200 bg-amber-50 text-amber-800"
+                            }`}
+                          >
+                            {a.type === "filing"
+                              ? "공시"
+                              : a.type === "earnings"
+                                ? "실적"
+                                : "뉴스"}
+                          </span>
+                          <span className="text-sm font-medium text-slate-900">
+                            {a.companyName}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {a.symbol}
+                          </span>
+                        </div>
+                        <p className="mt-1 truncate text-sm text-slate-700">
+                          {a.title}
+                        </p>
+                      </div>
+                      <span className="text-xs text-slate-500 whitespace-nowrap">
+                        {a.publishedAt}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 sm:hidden">
+                <Link
+                  href="/alerts"
+                  className="text-xs font-medium text-brand-700 hover:underline"
+                >
+                  전체 알림 보기 →
+                </Link>
+              </div>
+            </section>
+          )}
 
           {/* 카드 그리드 */}
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

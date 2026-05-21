@@ -6,9 +6,11 @@ const footerSections = [
     title: "서비스",
     links: [
       { href: "/search", label: "종목검색" },
+      { href: "/compare", label: "종목 비교" },
       { href: "/briefing", label: "오늘의 브리핑" },
       { href: "/calendar", label: "캘린더" },
       { href: "/watchlist", label: "관심종목" },
+      { href: "/alerts", label: "알림" },
       { href: "/guides", label: "가이드" },
     ],
   },
