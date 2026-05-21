@@ -6,7 +6,9 @@ const footerSections = [
     links: [
       { href: "/search", label: "종목검색" },
       { href: "/briefing", label: "오늘의 브리핑" },
+      { href: "/calendar", label: "캘린더" },
       { href: "/watchlist", label: "관심종목" },
+      { href: "/guides", label: "가이드" },
     ],
   },
   {
@@ -20,8 +22,9 @@ const footerSections = [
     title: "정책",
     links: [
       { href: "/disclaimer", label: "투자 유의사항" },
-      { href: "#", label: "이용약관" },
-      { href: "#", label: "개인정보처리방침" },
+      { href: "#", label: "이용약관 (준비 중)" },
+      { href: "#", label: "개인정보처리방침 (준비 중)" },
+      { href: "#", label: "환불 및 해지 정책 (준비 중)" },
     ],
   },
 ];
@@ -39,11 +42,14 @@ export default function Footer() {
               <span className="text-base font-bold text-slate-900">
                 스톡리포트
               </span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                DEMO
+              </span>
             </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
-              한국과 미국 주식의 공시, 뉴스, 실적 정보를 AI가 정리해주는
-              정보 제공 서비스입니다. 본 서비스는 투자 권유를 하지 않으며,
-              모든 투자 판단의 책임은 이용자 본인에게 있습니다.
+              한국과 미국 주식의 공시, 뉴스, 실적 정보를 한눈에 정리하는 주식
+              정보 웹사이트입니다. 매수·매도 권유 없이, 투자자가 직접 판단할
+              수 있는 정보를 제공합니다.
             </p>
           </div>
 
@@ -55,12 +61,18 @@ export default function Footer() {
               <ul className="mt-3 space-y-2">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-slate-600 hover:text-slate-900"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.href === "#" ? (
+                      <span className="text-sm text-slate-400">
+                        {link.label}
+                      </span>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-slate-600 hover:text-slate-900"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -72,6 +84,11 @@ export default function Footer() {
           <p className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-400" />
             현재 데모 데이터로 표시 중입니다.
+          </p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            스톡리포트는 정식 출시 전 데모 서비스입니다. 현재 표시되는 데이터는
+            데모 데이터이며, 사업자 정보와 통신판매업 신고번호는 정식 서비스
+            출시 시 고지됩니다.
           </p>
           <p className="mt-3 text-xs leading-5 text-slate-500">
             © {new Date().getFullYear()} 스톡리포트. 본 사이트의 모든 요약과

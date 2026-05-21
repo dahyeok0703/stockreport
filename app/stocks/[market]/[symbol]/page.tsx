@@ -11,8 +11,10 @@ import FilingCard from "@/components/stocks/FilingCard";
 import NormalizedNewsCard from "@/components/stocks/NormalizedNewsCard";
 import FinancialTable from "@/components/stocks/FinancialTable";
 import EarningsBox from "@/components/stocks/EarningsBox";
+import PriceSnapshotBox from "@/components/stocks/PriceSnapshotBox";
 import { getStockReport } from "@/lib/data/stockDataService";
 import { getStockBy } from "@/lib/mockStocks";
+import { getDemoPriceSnapshot } from "@/lib/priceSnapshot";
 import { getRuntimeFlags } from "@/lib/config/env";
 import { isAiCallable } from "@/lib/ai/config";
 import AiSummarySection from "@/components/stocks/AiSummarySection";
@@ -30,25 +32,31 @@ function isMarket(v: string): v is StockMarket {
 
 export async function generateMetadata({ params }: PageProps) {
   if (!isMarket(params.market)) {
-    return { title: "종목을 찾을 수 없습니다 | 스톡리포트" };
+    return {
+      title: "종목을 찾을 수 없습니다 | 스톡리포트",
+      robots: { index: false, follow: false },
+    };
   }
   const fallback = getStockBy(params.market, params.symbol);
   const name = fallback?.name ?? params.symbol;
   return {
-    title: `${name} (${params.symbol}) 리포트 | 스톡리포트`,
-    description: `${name}의 공시·뉴스·실적 정보를 정리한 리포트입니다.`,
+    title: `${name} 공시·뉴스·실적 요약 | 스톡리포트`,
+    description: `${name}의 공시, 뉴스, 실적, 재무 정보를 한 페이지에서 정리한 정보 제공용 리포트입니다.`,
+    robots: { index: false, follow: false },
   };
 }
 
 const tableOfContents = [
-  { id: "summary", label: "A. 한눈에 보는 요약" },
-  { id: "ai-summary", label: "AI 정보 요약" },
-  { id: "company", label: "B. 회사 개요" },
-  { id: "filings", label: "C. 최근 공시/제출자료" },
-  { id: "news", label: "D. 최근 뉴스" },
-  { id: "financials", label: "E. 최근 재무 데이터" },
-  { id: "checkpoints", label: "F. 주요 체크포인트" },
-  { id: "sources", label: "G. 원문 출처" },
+  { id: "price", label: "B. 가격 정보" },
+  { id: "summary", label: "C. 한눈에 보는 정보" },
+  { id: "company", label: "D. 회사 개요" },
+  { id: "filings", label: "E. 최근 공시/제출자료" },
+  { id: "news", label: "F. 최근 뉴스 흐름" },
+  { id: "earnings", label: "G. 실적 정보" },
+  { id: "financials", label: "H. 재무 핵심지표" },
+  { id: "checkpoints", label: "I. 주요 체크포인트" },
+  { id: "ai-summary", label: "J. 데모 AI 정보 요약" },
+  { id: "sources", label: "K. 원문 출처" },
 ];
 
 export default async function StockReportPage({ params }: PageProps) {
@@ -180,12 +188,32 @@ export default async function StockReportPage({ params }: PageProps) {
           </div>
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_280px]">
             <div className="min-w-0 space-y-12">
-              {/* A. 데이터 기반 요약 — AI 요약 아님 */}
+              {/* B. 가격 정보 — 데모 가격 데이터 */}
+              <section id="price" className="scroll-mt-24">
+                <div className="mb-4 flex items-baseline gap-3">
+                  <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-md bg-brand-700 px-2 text-xs font-bold uppercase text-white">
+                    B
+                  </span>
+                  <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
+                    가격 정보
+                  </h2>
+                </div>
+                <PriceSnapshotBox
+                  snap={getDemoPriceSnapshot(
+                    getStockBy(report.stock.market, report.stock.symbol) ?? {
+                      market: report.stock.market,
+                      symbol: report.stock.symbol,
+                    } as never,
+                  )}
+                />
+              </section>
+
+              {/* C. 데이터 기반 요약 — AI 요약 아님 */}
               <ReportSection
                 id="summary"
-                label="A"
-                title="한눈에 보는 요약"
-                description="회사 개요와 최근 정보 흐름을 정리합니다. AI 요약이 아니며, 데이터 기반의 정보 요약입니다."
+                label="C"
+                title="한눈에 보는 정보"
+                description="회사 개요와 최근 정보 흐름, 확인할 항목을 데이터 기반으로 정리합니다."
               >
                 <div className="card p-6">
                   <p className="text-sm leading-7 text-slate-700">
@@ -198,18 +226,10 @@ export default async function StockReportPage({ params }: PageProps) {
                 </div>
               </ReportSection>
 
-              {/* A2. AI 정보 요약 (client) */}
-              <AiSummarySection
-                market={report.stock.market}
-                symbol={report.stock.symbol}
-                isLoggedIn={isLoggedIn}
-                aiEnabled={aiEnabled}
-              />
-
-              {/* B. 회사 개요 */}
+              {/* D. 회사 개요 */}
               <ReportSection
                 id="company"
-                label="B"
+                label="D"
                 title="회사 개요"
                 description="회사의 주요 사업·제품/서비스·시장·매출 구조를 정리합니다."
               >
@@ -291,14 +311,14 @@ export default async function StockReportPage({ params }: PageProps) {
                 )}
               </ReportSection>
 
-              {/* C. 공시 / Filings */}
+              {/* E. 공시 / Filings */}
               <ReportSection
                 id="filings"
-                label="C"
+                label="E"
                 title={
                   report.stock.market === "kr"
-                    ? "최근 공시 (OpenDART)"
-                    : "최근 제출자료 (SEC EDGAR)"
+                    ? "최근 공시 (OpenDART 형식)"
+                    : "최근 제출자료 (SEC EDGAR 형식)"
                 }
                 description="회사가 공식적으로 제출한 자료의 목록입니다. 제목·일자·유형·원문 링크를 그대로 표시합니다."
               >
@@ -314,12 +334,12 @@ export default async function StockReportPage({ params }: PageProps) {
                 )}
               </ReportSection>
 
-              {/* D. 뉴스 */}
+              {/* F. 뉴스 */}
               <ReportSection
                 id="news"
-                label="D"
-                title="최근 뉴스"
-                description="설정된 뉴스 공급자의 검색 결과 또는 목업 뉴스를 표시합니다."
+                label="F"
+                title="최근 뉴스 흐름"
+                description="여러 출처의 종목 관련 뉴스를 모아 제목·출처·날짜·키워드 중심으로 정리합니다."
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <DataStatusBadge status={report.sectionStatus.news} />
@@ -338,19 +358,38 @@ export default async function StockReportPage({ params }: PageProps) {
                 )}
               </ReportSection>
 
-              {/* E. 재무 */}
+              {/* G. 실적 정보 */}
+              <ReportSection
+                id="earnings"
+                label="G"
+                title="실적 정보"
+                description="최근 보고 기간의 매출·영업이익·순이익을 정리합니다. 숫자는 입력 데이터에 있는 경우에만 사용됩니다."
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <DataStatusBadge status={report.sectionStatus.financials} />
+                  <span className="text-xs text-slate-500">
+                    데이터 기준 안내 — 표시되는 수치는 데모 데이터입니다.
+                  </span>
+                </div>
+                {report.earnings ? (
+                  <EarningsBox earnings={report.earnings} />
+                ) : (
+                  <div className="card p-5 text-sm text-slate-600">
+                    현재 제공 가능한 실적 데이터가 없습니다.
+                  </div>
+                )}
+              </ReportSection>
+
+              {/* H. 재무 핵심지표 */}
               <ReportSection
                 id="financials"
-                label="E"
-                title="최근 재무 데이터"
-                description="공시 원문에서 추출한 핵심 재무 항목입니다. 수치는 원문에서 가져온 값만 사용합니다."
+                label="H"
+                title="재무 핵심지표"
+                description="매출 성장률·영업이익률·부채·현금흐름을 정리합니다. PER/PBR 등은 참고 지표로만 표시되며 투자 판단은 포함하지 않습니다."
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <DataStatusBadge status={report.sectionStatus.financials} />
                 </div>
-                {report.earnings && (
-                  <EarningsBox earnings={report.earnings} />
-                )}
                 {report.financials.length === 0 ? (
                   <div className="card p-5 text-sm text-slate-600">
                     현재 제공 가능한 재무 데이터가 없습니다.
@@ -360,12 +399,12 @@ export default async function StockReportPage({ params }: PageProps) {
                 )}
               </ReportSection>
 
-              {/* F. 체크포인트 */}
+              {/* I. 체크포인트 */}
               <ReportSection
                 id="checkpoints"
-                label="F"
+                label="I"
                 title="주요 체크포인트"
-                description="공시·실적·뉴스 흐름에서 확인할 수 있는 항목입니다. 좋다/나쁘다 판단은 포함하지 않습니다."
+                description="공시·실적·뉴스·재무 흐름에서 확인할 수 있는 항목입니다. 좋다/나쁘다 판단은 포함하지 않습니다."
               >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   {[
@@ -408,12 +447,35 @@ export default async function StockReportPage({ params }: PageProps) {
                 </div>
               </ReportSection>
 
-              {/* G. 원문 출처 */}
+              {/* J. 데모 AI 정보 요약 */}
+              <section id="ai-summary" className="scroll-mt-24">
+                <div className="mb-4 flex items-baseline gap-3">
+                  <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-md bg-brand-700 px-2 text-xs font-bold uppercase text-white">
+                    J
+                  </span>
+                  <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
+                    데모 AI 정보 요약
+                  </h2>
+                </div>
+                <p className="mb-3 text-sm leading-6 text-slate-600">
+                  AI 정보 요약 기능은 정식 연동 단계에서 제공될 예정입니다.
+                  현재 표시되는 내용은 입력 데이터에서 생성한 데모 요약이며,
+                  투자 판단을 포함하지 않습니다.
+                </p>
+                <AiSummarySection
+                  market={report.stock.market}
+                  symbol={report.stock.symbol}
+                  isLoggedIn={isLoggedIn}
+                  aiEnabled={aiEnabled}
+                />
+              </section>
+
+              {/* K. 원문 출처 */}
               <ReportSection
                 id="sources"
-                label="G"
+                label="K"
                 title="원문 출처"
-                description="표시된 정보는 다음 API 응답과 원문 링크를 기반으로 구성됩니다. 자세한 내용은 원문을 직접 확인해 주세요."
+                description="표시된 정보는 다음 데모 데이터와 원문 링크 자리표시를 기반으로 구성됩니다. 정식 출시 단계에서는 OpenDART·SEC EDGAR·뉴스 공급자 원문이 직접 연결됩니다."
               >
                 <div className="card p-5">
                   <ul className="divide-y divide-slate-200">

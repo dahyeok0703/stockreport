@@ -43,6 +43,22 @@ export interface SourceLink {
   category: "공시" | "뉴스" | "실적";
 }
 
+export interface PriceSnapshot {
+  currency: "KRW" | "USD";
+  /** 현재가처럼 보이는 데모 값 */
+  current: number;
+  /** 전일 대비 변화 (절대값) */
+  changeAbs: number;
+  /** 전일 대비 변화 (퍼센트, +/-) */
+  changePct: number;
+  /** 거래량 데모 */
+  volume: number;
+  /** 시가총액 데모 — 사람이 읽기 좋은 문자열 */
+  marketCap: string;
+  /** 데이터 기준 시각 (사용자 표시용 문자열) */
+  asOf: string;
+}
+
 export interface Checkpoints {
   disclosure: string[];
   earnings: string[];
@@ -72,6 +88,7 @@ export interface Stock {
   recentNews: NewsItem[];
   earningsSummary: EarningsItem;
   financialMetrics: FinancialMetric[];
+  priceSnapshot?: PriceSnapshot;
   checkpoints: Checkpoints;
   sourceLinks: SourceLink[];
   lastUpdated: string;
@@ -1742,3 +1759,8 @@ export function searchStocks(query: string, market?: MarketCode | "all") {
     );
   });
 }
+
+// =================================================================
+// Demo price snapshot — 종목별 결정론적 데모 가격 정보
+// 실제 시세 연동은 정식 서비스 단계에서 제공될 예정입니다.
+// =================================================================

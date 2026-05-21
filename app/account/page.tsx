@@ -39,11 +39,14 @@ export default function AccountPage() {
 
           <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
             <p className="text-sm font-semibold text-amber-900">
-              회원 기능은 준비 중입니다
+              회원 기능은 준비 중입니다.
             </p>
             <p className="mt-1 text-sm leading-6 text-amber-900/90">
-              현재는 로그인 없이 종목 검색·리포트·관심종목(이 기기에만 저장)을
-              모두 이용할 수 있습니다.
+              현재 데모 모드에서는 관심종목이 브라우저에 임시 저장됩니다.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-amber-900/90">
+              정식 서비스 단계에서 회원가입, 로그인, 요금제 기능이 제공될
+              예정입니다.
             </p>
           </div>
 
