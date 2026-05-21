@@ -69,7 +69,11 @@ export default function Footer() {
         </div>
 
         <div className="section-divider mt-10 pt-6">
-          <p className="text-xs leading-5 text-slate-500">
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-400" />
+            현재 데모 데이터로 표시 중입니다.
+          </p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
             © {new Date().getFullYear()} 스톡리포트. 본 사이트의 모든 요약과
             정보는 공시·뉴스·실적자료를 바탕으로 한 정보 제공용 자료이며,
             특정 종목의 매수·매도·보유를 권유하지 않습니다.

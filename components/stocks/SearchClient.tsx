@@ -266,8 +266,11 @@ export default function SearchClient() {
 
       {!loading && displayed.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-          <p className="text-sm text-slate-600">
-            검색 결과가 없습니다. 다른 종목명·티커·업종으로 시도해 보세요.
+          <p className="text-sm font-semibold text-slate-900">
+            검색 결과가 없습니다.
+          </p>
+          <p className="mt-1 text-sm text-slate-600">
+            종목명 또는 티커를 다시 확인해 주세요.
           </p>
         </div>
       ) : (

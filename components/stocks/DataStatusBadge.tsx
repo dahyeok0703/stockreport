@@ -17,16 +17,16 @@ const VARIANTS: Record<
       "일부 섹션은 실제 API 데이터로, 일부는 목업 데이터로 구성되어 있습니다.",
   },
   mock: {
-    label: "목업 데이터 표시 중",
+    label: "데모 데이터",
     className: "bg-slate-100 text-slate-700 border border-slate-200",
     description:
-      "외부 API 키가 설정되지 않아 목업 데이터로 화면이 구성되었습니다.",
+      "현재 데모 모드입니다. 외부 API 키가 설정되지 않아 데모 데이터로 화면이 구성되었습니다.",
   },
   error: {
     label: "데이터 로드 오류, 기존 데이터 표시 중",
     className: "bg-amber-50 text-amber-800 border border-amber-200",
     description:
-      "외부 API 호출 중 오류가 발생해 캐시 또는 목업 데이터로 fallback 되었습니다.",
+      "외부 API 호출 중 오류가 발생해 캐시 또는 데모 데이터로 fallback 되었습니다.",
   },
 };
 

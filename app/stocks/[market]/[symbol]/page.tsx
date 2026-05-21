@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
+import DemoModeNotice from "@/components/common/DemoModeNotice";
 import ReportSection from "@/components/stocks/ReportSection";
 import WatchlistButton from "@/components/stocks/WatchlistButton";
 import ReportLimitBlock from "@/components/stocks/ReportLimitBlock";
@@ -174,6 +175,9 @@ export default async function StockReportPage({ params }: PageProps) {
               symbol={report.stock.symbol}
             />
           )}
+          <div className="mb-6">
+            <DemoModeNotice variant="report" />
+          </div>
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_280px]">
             <div className="min-w-0 space-y-12">
               {/* A. 데이터 기반 요약 — AI 요약 아님 */}
