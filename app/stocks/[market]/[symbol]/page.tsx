@@ -6,18 +6,20 @@ import DisclosureCard from "@/components/stocks/DisclosureCard";
 import NewsCard from "@/components/stocks/NewsCard";
 import EarningsCard from "@/components/stocks/EarningsCard";
 import MetricCard from "@/components/stocks/MetricCard";
-import { getStockBy, mockStocks } from "@/lib/mockStocks";
+import WatchlistButton from "@/components/stocks/WatchlistButton";
+import ReportLimitBlock from "@/components/stocks/ReportLimitBlock";
+import ReportViewTracker from "@/components/stocks/ReportViewTracker";
+import { getStockBy } from "@/lib/mockStocks";
+import { getCurrentAuth } from "@/lib/auth";
+import { getTodayUsageStatus } from "@/lib/usage";
+import { isInMyWatchlist } from "@/lib/watchlist";
 
 interface PageProps {
   params: { market: string; symbol: string };
 }
 
-export function generateStaticParams() {
-  return (mockStocks ?? []).map((s) => ({
-    market: s.market,
-    symbol: s.symbol,
-  }));
-}
+// Auth/usage-aware; cannot prerender.
+export const dynamic = "force-dynamic";
 
 export function generateMetadata({ params }: PageProps) {
   const stock = getStockBy(params?.market, params?.symbol);
@@ -39,9 +41,18 @@ const tableOfContents = [
   { id: "sources", label: "H. 원문 출처" },
 ];
 
-export default function StockReportPage({ params }: PageProps) {
+export default async function StockReportPage({ params }: PageProps) {
   const stock = getStockBy(params?.market, params?.symbol);
   if (!stock) notFound();
+
+  const [{ user }, usage, alreadyInWatchlist] = await Promise.all([
+    getCurrentAuth(),
+    getTodayUsageStatus(),
+    isInMyWatchlist(stock.market, stock.symbol),
+  ]);
+  const isLoggedIn = Boolean(user);
+  const limitExceeded = isLoggedIn && usage.exceeded;
+
   const disclosures = stock.recentDisclosures ?? [];
   const news = stock.recentNews ?? [];
   const revenue = stock.revenueStructure ?? [];
@@ -92,28 +103,15 @@ export default function StockReportPage({ params }: PageProps) {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="btn-outline text-sm"
-                aria-label="관심종목에 추가"
-                title="관심종목 기능은 1단계 B에서 제공될 예정입니다."
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="mr-1.5 h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.8}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.365 2.446a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.446a1 1 0 00-1.176 0l-3.365 2.446c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"
-                  />
-                </svg>
-                관심종목 추가
-              </button>
+              <WatchlistButton
+                market={stock.market}
+                symbol={stock.symbol}
+                name={stock.name}
+                exchange={stock.exchange}
+                sector={stock.sector}
+                initialInWatchlist={alreadyInWatchlist}
+                isLoggedIn={isLoggedIn}
+              />
             </div>
           </div>
 
@@ -133,7 +131,18 @@ export default function StockReportPage({ params }: PageProps) {
       </div>
 
       {/* BODY */}
-      <div className="container-page py-10">
+      {limitExceeded ? (
+        <div className="container-page py-10">
+          <ReportLimitBlock
+            limit={usage.limit}
+            used={usage.usage?.report_views ?? 0}
+          />
+        </div>
+      ) : (
+        <div className="container-page py-10">
+          {isLoggedIn && (
+            <ReportViewTracker market={stock.market} symbol={stock.symbol} />
+          )}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_280px]">
           <div className="min-w-0 space-y-12">
             {/* A. Summary */}
@@ -462,7 +471,8 @@ export default function StockReportPage({ params }: PageProps) {
             </div>
           </aside>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

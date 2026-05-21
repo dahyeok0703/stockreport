@@ -3,47 +3,48 @@ import DisclaimerBox from "@/components/common/DisclaimerBox";
 import PricingCard, {
   type PricingPlan,
 } from "@/components/pricing/PricingCard";
+import { PLAN_LIMITS } from "@/lib/planLimits";
 
 const plans: PricingPlan[] = [
   {
-    name: "무료",
+    name: PLAN_LIMITS.free.label,
     price: "0원",
     description: "스톡리포트를 가볍게 체험해 보세요.",
     features: [
-      "하루 종목 요약 3회",
+      `하루 종목 리포트 조회 ${PLAN_LIMITS.free.dailyReportViews}회`,
       "최근 뉴스 일부 요약",
       "최근 공시 일부 요약",
-      "관심종목 5개까지 (예정)",
+      `관심종목 ${PLAN_LIMITS.free.watchlistMax}개까지`,
       "오늘의 브리핑 일부 보기",
     ],
     cta: "준비 중",
   },
   {
-    name: "베이직",
+    name: PLAN_LIMITS.basic.label,
     price: "9,900원",
     priceNote: "/ 월",
     description: "꾸준히 시장을 챙겨보는 개인 투자자에게 적합한 요금제입니다.",
     features: [
-      "하루 종목 요약 50회",
+      `하루 종목 리포트 조회 ${PLAN_LIMITS.basic.dailyReportViews}회`,
       "한국·미국 종목 검색",
       "공시 요약 전체 보기",
       "뉴스 요약 전체 보기",
       "실적 요약 전체 보기",
-      "관심종목 50개까지 (예정)",
+      `관심종목 ${PLAN_LIMITS.basic.watchlistMax}개까지`,
       "오늘의 시장 브리핑 전체 보기",
     ],
     cta: "준비 중",
     highlighted: true,
   },
   {
-    name: "프로",
+    name: PLAN_LIMITS.pro.label,
     price: "19,900원",
     priceNote: "/ 월",
     description:
       "더 많은 종목을 깊이 있게 추적하고 싶은 사용자를 위한 요금제입니다.",
     features: [
-      "종목 요약 확대",
-      "관심종목 200개까지 (예정)",
+      `하루 종목 리포트 조회 ${PLAN_LIMITS.pro.dailyReportViews}회`,
+      `관심종목 ${PLAN_LIMITS.pro.watchlistMax}개까지`,
       "관심종목 일일 브리핑 (예정)",
       "공시 발생 알림 (예정)",
       "실적 발표 요약 (예정)",
@@ -57,7 +58,7 @@ const plans: PricingPlan[] = [
 const faqs = [
   {
     q: "결제는 언제 시작되나요?",
-    a: "현재는 베타 준비 단계이며, 정식 결제는 추후 공지 예정입니다. 모든 요금제는 UI 미리보기 상태입니다.",
+    a: "현재는 회원가입과 관심종목 저장 기능까지 제공되며, 결제 기능은 이후 단계에서 제공될 예정입니다.",
   },
   {
     q: "스톡리포트는 투자 추천 서비스인가요?",
@@ -75,7 +76,7 @@ export default function PricingPage() {
       <SectionTitle
         eyebrow="요금제"
         title="필요한 만큼 선택하세요"
-        description="모든 요금제는 정보 제공을 목적으로 제공됩니다. 결제 기능은 준비 중이며, 화면은 미리보기 상태입니다."
+        description="모든 요금제는 정보 제공을 목적으로 제공됩니다. 결제 기능은 이후 단계에서 제공될 예정입니다."
         align="center"
       />
 
@@ -83,6 +84,11 @@ export default function PricingPage() {
         {plans.map((p) => (
           <PricingCard key={p.name} plan={p} />
         ))}
+      </div>
+
+      <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-600">
+        결제 기능은 이후 단계에서 제공될 예정입니다. 모든 사용자는 회원가입 시
+        무료 요금제로 시작합니다.
       </div>
 
       <section className="mt-16">

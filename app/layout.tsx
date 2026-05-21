@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import SupabaseMissingBanner from "@/components/common/SupabaseMissingBanner";
+import { getCurrentAuth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "스톡리포트 | 공시·뉴스·실적 AI 요약",
@@ -18,15 +20,18 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, configured } = await getCurrentAuth();
+
   return (
     <html lang="ko">
       <body className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans">
-        <Header />
+        {!configured && <SupabaseMissingBanner />}
+        <Header userEmail={user?.email ?? null} />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
