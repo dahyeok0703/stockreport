@@ -127,3 +127,92 @@ create policy "usage: update own"
   on public.daily_usage for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ============================================================
+-- 1단계 C: 외부 데이터 매핑 / 캐시 / 스냅샷
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- stock_mappings
+-- 한국 종목코드 ↔ DART corp_code, 미국 ticker ↔ SEC CIK 매핑
+-- ------------------------------------------------------------
+create table if not exists public.stock_mappings (
+  id              uuid primary key default gen_random_uuid(),
+  market          text not null check (market in ('kr', 'us')),
+  symbol          text not null,
+  name            text not null,
+  exchange        text,
+  country         text,
+  dart_corp_code  text,
+  sec_cik         text,
+  sector          text,
+  industry        text,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now(),
+  constraint stock_mappings_market_symbol_unique unique (market, symbol)
+);
+
+create index if not exists stock_mappings_market_idx
+  on public.stock_mappings (market);
+
+alter table public.stock_mappings enable row level security;
+
+-- 읽기는 익명/로그인 사용자 모두 허용 (공개 메타데이터)
+drop policy if exists "stock_mappings: read all" on public.stock_mappings;
+create policy "stock_mappings: read all"
+  on public.stock_mappings for select
+  using (true);
+
+-- 쓰기 정책 없음 → service role 로만 쓰기 가능
+
+-- ------------------------------------------------------------
+-- api_cache
+-- 외부 API 응답 캐시. service role 로만 접근 (RLS 차단)
+-- ------------------------------------------------------------
+create table if not exists public.api_cache (
+  id          uuid primary key default gen_random_uuid(),
+  cache_key   text unique not null,
+  provider    text not null,
+  endpoint    text not null,
+  params      jsonb,
+  response    jsonb not null,
+  expires_at  timestamptz not null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists api_cache_expires_at_idx
+  on public.api_cache (expires_at);
+
+alter table public.api_cache enable row level security;
+
+-- 정책 없음 → anon/authenticated 클라이언트는 접근 불가. service role 만 사용.
+
+-- ------------------------------------------------------------
+-- stock_data_snapshots
+-- 종목별 정규화된 리포트 데이터 스냅샷
+-- ------------------------------------------------------------
+create table if not exists public.stock_data_snapshots (
+  id             uuid primary key default gen_random_uuid(),
+  market         text not null check (market in ('kr', 'us')),
+  symbol         text not null,
+  data           jsonb not null,
+  source_status  text not null default 'partial'
+    check (source_status in ('mock', 'partial', 'real', 'error')),
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now(),
+  constraint stock_data_snapshots_market_symbol_unique unique (market, symbol)
+);
+
+create index if not exists stock_data_snapshots_updated_at_idx
+  on public.stock_data_snapshots (updated_at desc);
+
+alter table public.stock_data_snapshots enable row level security;
+
+-- 읽기는 공개 허용 (정규화·압축된 메타 정보)
+drop policy if exists "snapshots: read all" on public.stock_data_snapshots;
+create policy "snapshots: read all"
+  on public.stock_data_snapshots for select
+  using (true);
+
+-- 쓰기 정책 없음 → service role 로만 쓰기 가능

@@ -1,14 +1,11 @@
-export interface SupabaseEnv {
-  url: string;
-  anonKey: string;
-}
+// Back-compat re-exports. New code should import from "@/lib/config/env".
+export {
+  getSupabaseEnv,
+  getSupabaseServiceRoleKey,
+} from "@/lib/config/env";
+export type { SupabaseEnv } from "@/lib/config/env";
 
-export function getSupabaseEnv(): SupabaseEnv | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return null;
-  return { url, anonKey };
-}
+import { getSupabaseEnv } from "@/lib/config/env";
 
 export function hasSupabaseConfig(): boolean {
   return getSupabaseEnv() !== null;

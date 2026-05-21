@@ -12,6 +12,9 @@ import {
   type MarketBriefing,
 } from "@/lib/mockBriefing";
 import { getStockReportHref } from "@/lib/utils";
+import { getRuntimeFlags } from "@/lib/config/env";
+
+export const dynamic = "force-dynamic";
 
 function MarketBriefingCard({ briefing }: { briefing: MarketBriefing }) {
   return (
@@ -71,6 +74,10 @@ function MarketBriefingCard({ briefing }: { briefing: MarketBriefing }) {
 }
 
 export default function BriefingPage() {
+  const flags = getRuntimeFlags();
+  const someRealData =
+    flags.dart || flags.sec || flags.newsProvider !== "mock";
+
   return (
     <div className="container-page py-12 sm:py-16">
       <SectionTitle
@@ -79,8 +86,24 @@ export default function BriefingPage() {
         description="한국·미국 시장 흐름, 주요 뉴스, 주요 공시, 발표 일정을 한 페이지에서 확인합니다."
       />
 
-      <div className="mt-3">
-        <span className="badge-slate">이 페이지는 향후 자동 업데이트 예정</span>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {someRealData ? (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            일부 데이터 연동 준비됨 (
+            {[
+              flags.dart ? "DART" : null,
+              flags.sec ? "SEC" : null,
+              flags.newsProvider !== "mock" ? `news:${flags.newsProvider}` : null,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+            )
+          </span>
+        ) : (
+          <span className="badge-slate">목업 데이터 표시 중</span>
+        )}
+        <span className="badge-slate">브리핑 자동 생성은 2단계 A에서 구현 예정</span>
       </div>
 
       {/* MARKET CARDS */}

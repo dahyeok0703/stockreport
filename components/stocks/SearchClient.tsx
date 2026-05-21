@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { mockStocks, type MarketCode } from "@/lib/mockStocks";
+import { mockStocks } from "@/lib/mockStocks";
 import { getStockReportHref } from "@/lib/utils";
 import WatchlistButton from "@/components/stocks/WatchlistButton";
+import type {
+  NormalizedStock,
+  StockMarket,
+} from "@/lib/providers/types";
 
-type Filter = "all" | MarketCode;
+type Filter = "all" | StockMarket;
 
 const filters: { value: Filter; label: string }[] = [
   { value: "all", label: "전체" },
@@ -20,6 +24,19 @@ interface SearchClientProps {
   watchlistKeys: string[];
 }
 
+function mockToNormalized(): NormalizedStock[] {
+  return (mockStocks ?? []).map((s) => ({
+    name: s.name,
+    symbol: s.symbol,
+    market: s.market,
+    exchange: s.exchange,
+    country: s.country,
+    sector: s.sector,
+    industry: s.industry,
+    description: s.description,
+  }));
+}
+
 export default function SearchClient({
   isLoggedIn,
   watchlistKeys,
@@ -28,25 +45,64 @@ export default function SearchClient({
   const initial = searchParams?.get("q") ?? "";
   const [query, setQuery] = useState(initial);
   const [filter, setFilter] = useState<Filter>("all");
+  const [results, setResults] = useState<NormalizedStock[]>(mockToNormalized());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const reqIdRef = useRef(0);
 
   const watchlistSet = useMemo(
     () => new Set(watchlistKeys),
     [watchlistKeys],
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (mockStocks ?? []).filter((s) => {
-      if (filter !== "all" && s.market !== filter) return false;
-      if (!q) return true;
-      return (
-        s.name.toLowerCase().includes(q) ||
-        s.symbol.toLowerCase().includes(q) ||
-        s.industry.toLowerCase().includes(q) ||
-        s.sector.toLowerCase().includes(q) ||
-        s.description.toLowerCase().includes(q)
-      );
-    });
+  // Debounced fetch from /api/stocks/search whenever query/filter changes.
+  useEffect(() => {
+    const reqId = ++reqIdRef.current;
+    setError(null);
+    setLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams();
+        if (query.trim()) params.set("query", query.trim());
+        if (filter !== "all") params.set("market", filter);
+        const res = await fetch(`/api/stocks/search?${params}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as {
+          ok: boolean;
+          results: NormalizedStock[];
+        };
+        if (reqId !== reqIdRef.current) return; // stale
+        if (data.ok) {
+          setResults(data.results ?? []);
+        } else {
+          throw new Error("API returned ok: false");
+        }
+      } catch (e) {
+        if (reqId !== reqIdRef.current) return;
+        setError(
+          e instanceof Error ? e.message : "검색 API 호출에 실패했습니다.",
+        );
+        // fallback to local mock
+        const q = query.trim().toLowerCase();
+        const local = mockToNormalized().filter((s) => {
+          if (filter !== "all" && s.market !== filter) return false;
+          if (!q) return true;
+          return (
+            s.name.toLowerCase().includes(q) ||
+            s.symbol.toLowerCase().includes(q) ||
+            (s.industry ?? "").toLowerCase().includes(q) ||
+            (s.sector ?? "").toLowerCase().includes(q) ||
+            (s.description ?? "").toLowerCase().includes(q)
+          );
+        });
+        setResults(local);
+      } finally {
+        if (reqId === reqIdRef.current) setLoading(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
   }, [query, filter]);
 
   return (
@@ -96,11 +152,17 @@ export default function SearchClient({
 
       <div className="mt-6 flex items-center justify-between">
         <p className="text-sm text-slate-600">
-          검색 결과{" "}
-          <span className="font-semibold text-slate-900">
-            {filtered.length}
-          </span>
-          건
+          {loading ? (
+            <span className="text-slate-500">검색 중…</span>
+          ) : (
+            <>
+              검색 결과{" "}
+              <span className="font-semibold text-slate-900">
+                {results.length}
+              </span>
+              건
+            </>
+          )}
         </p>
         {!isLoggedIn && (
           <p className="text-xs text-slate-500">
@@ -116,7 +178,13 @@ export default function SearchClient({
         )}
       </div>
 
-      {filtered.length === 0 ? (
+      {error && (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          검색 API 호출 중 오류가 발생해 로컬 데이터로 표시했습니다 ({error}).
+        </div>
+      )}
+
+      {!loading && results.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
           <p className="text-sm text-slate-600">
             검색 결과가 없습니다. 다른 종목명이나 티커로 시도해 보세요.
@@ -124,7 +192,7 @@ export default function SearchClient({
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((stock) => {
+          {results.map((stock) => {
             const key = `${stock.market}:${stock.symbol.toLowerCase()}`;
             const alreadyIn = watchlistSet.has(key);
             return (
@@ -142,17 +210,23 @@ export default function SearchClient({
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <span className="badge-brand">{stock.country}</span>
-                      <span className="badge-slate">{stock.exchange}</span>
-                      <span className="text-xs text-slate-500">
-                        {stock.industry}
-                      </span>
+                      {stock.exchange && (
+                        <span className="badge-slate">{stock.exchange}</span>
+                      )}
+                      {stock.industry && (
+                        <span className="text-xs text-slate-500">
+                          {stock.industry}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
-                  {stock.description}
-                </p>
+                {stock.description && (
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+                    {stock.description}
+                  </p>
+                )}
 
                 <div className="mt-5 flex items-center justify-between gap-2">
                   <Link

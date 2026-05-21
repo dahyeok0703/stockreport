@@ -149,6 +149,16 @@ export default async function WatchlistPage() {
                           w.symbol,
                         )}
                         className="btn-outline text-xs"
+                        title="리포트 페이지에서 최신 데이터를 다시 불러옵니다"
+                      >
+                        데이터 새로고침
+                      </Link>
+                      <Link
+                        href={getStockReportHref(
+                          w.market as "kr" | "us",
+                          w.symbol,
+                        )}
+                        className="btn-ghost text-xs"
                       >
                         리포트 보기
                       </Link>
