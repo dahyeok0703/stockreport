@@ -67,7 +67,7 @@ export default function WatchlistButton({
           if (res.reason === "duplicate") {
             setInList(true);
           } else if (res.reason === "limit") {
-            setError("데모 모드에서는 관심종목 50개까지 저장할 수 있습니다.");
+            setError("관심종목은 최대 50개까지 저장할 수 있습니다.");
           }
           return;
         }
@@ -96,7 +96,7 @@ export default function WatchlistButton({
             : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
         aria-pressed={showActive}
-        title="이 기기 브라우저에 저장됩니다 (데모 모드)"
+        title="관심종목에 추가하거나 해제합니다"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

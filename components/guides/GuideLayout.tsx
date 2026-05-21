@@ -47,12 +47,11 @@ export default function GuideLayout({ slug, children }: GuideLayoutProps) {
       {/* CTA */}
       <div className="mt-10 max-w-3xl rounded-xl border border-brand-200 bg-brand-50 p-5">
         <p className="text-sm font-semibold text-brand-900">
-          스톡리포트에서는 종목별로 정리해서 볼 수 있도록 준비 중입니다.
+          스톡리포트에서 종목별 공시·뉴스·실적을 한 페이지에서 확인해 보세요.
         </p>
         <p className="mt-1 text-sm leading-6 text-brand-900/90">
-          종목별 공시, 뉴스, 실적 정보를 한 페이지에서 확인할 수 있도록 준비
-          중입니다. 매수·매도 권유 없이, 투자자가 직접 판단할 수 있는 정보를
-          제공하는 것이 목표입니다.
+          매수·매도 권유 없이, 투자자가 직접 판단할 수 있는 정보를 정리해
+          제공합니다.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/search" className="btn-primary text-sm">

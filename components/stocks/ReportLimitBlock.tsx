@@ -33,8 +33,8 @@ export default function ReportLimitBlock({
           오늘의 종목 리포트 조회 한도를 모두 사용했습니다.
         </h2>
         <p className="mt-2 text-sm leading-6 text-amber-900/90">
-          오늘 사용량 {used} / {limit}회. 한도는 매일 초기화됩니다. 요금제
-          업그레이드 기능은 다음 단계에서 제공될 예정입니다.
+          오늘 사용량 {used} / {limit}회. 한도는 매일 초기화됩니다. 더 많은
+          리포트가 필요하면 요금제를 확인해 주세요.
         </p>
         <div className="mt-6 flex items-center justify-center gap-2">
           <Link href="/pricing" className="btn-primary text-sm">

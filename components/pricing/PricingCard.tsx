@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export interface PricingPlan {
   name: string;
   price: string;
@@ -5,6 +7,7 @@ export interface PricingPlan {
   description: string;
   features: string[];
   cta: string;
+  ctaHref?: string;
   highlighted?: boolean;
 }
 
@@ -92,17 +95,16 @@ export default function PricingCard({ plan }: PricingCardProps) {
         ))}
       </ul>
 
-      <button
-        type="button"
-        disabled
-        className={`mt-6 w-full rounded-md px-4 py-2.5 text-sm font-medium ${
+      <Link
+        href={plan.ctaHref ?? "/signup"}
+        className={`mt-6 w-full rounded-md px-4 py-2.5 text-center text-sm font-medium ${
           plan.highlighted
             ? "bg-white text-brand-800 hover:bg-slate-100"
             : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
       >
         {plan.cta}
-      </button>
+      </Link>
     </article>
   );
 }

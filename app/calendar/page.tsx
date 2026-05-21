@@ -82,8 +82,7 @@ export default function CalendarPage() {
       />
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="badge-slate">모든 일정은 데모 데이터</span>
-        <span className="badge-slate">정보 제공용</span>
+        <span className="badge-slate">정보 제공용 자료</span>
       </div>
 
       {/* Filters */}

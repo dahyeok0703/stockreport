@@ -33,9 +33,6 @@ export default function Header() {
           <span className="text-lg font-bold tracking-tight text-slate-900">
             스톡리포트
           </span>
-          <span className="hidden sm:inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600">
-            DEMO
-          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -57,8 +54,8 @@ export default function Header() {
           >
             로그인
           </Link>
-          <Link href="/pricing" className="btn-primary text-sm">
-            요금제 보기
+          <Link href="/signup" className="btn-primary text-sm">
+            회원가입
           </Link>
         </div>
 
@@ -112,7 +109,14 @@ export default function Header() {
                 onClick={() => setOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
-                로그인 (준비 중)
+                로그인
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                회원가입
               </Link>
               <Link
                 href="/pricing"

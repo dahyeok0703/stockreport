@@ -9,33 +9,35 @@ const plans: PricingPlan[] = [
   {
     name: PLAN_LIMITS.free.label,
     price: "0원",
-    description: "스톡리포트를 가볍게 체험해 보세요.",
+    description: "스톡리포트를 처음 사용해 보는 개인 투자자에게 적합합니다.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.free.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.free.dailyAiSummaries}회`,
-      "최근 뉴스 일부 요약",
-      "최근 공시 일부 요약",
-      `관심종목 ${PLAN_LIMITS.free.watchlistMax}개까지`,
-      "오늘의 브리핑 일부 보기",
+      "최근 뉴스 요약",
+      "최근 공시 요약",
+      `관심종목 ${PLAN_LIMITS.free.watchlistMax}개`,
+      "오늘의 브리핑",
     ],
-    cta: "준비 중",
+    cta: "무료로 시작하기",
+    ctaHref: "/signup",
   },
   {
     name: PLAN_LIMITS.basic.label,
     price: "9,900원",
     priceNote: "/ 월",
-    description: "꾸준히 시장을 챙겨보는 개인 투자자에게 적합한 요금제입니다.",
+    description: "꾸준히 시장을 챙겨보는 개인 투자자에게 적합합니다.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.basic.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.basic.dailyAiSummaries}회`,
-      "한국·미국 종목 검색",
+      "한국·미국 종목 통합 검색",
       "공시 요약 전체 보기",
       "뉴스 요약 전체 보기",
       "실적 요약 전체 보기",
-      `관심종목 ${PLAN_LIMITS.basic.watchlistMax}개까지`,
+      `관심종목 ${PLAN_LIMITS.basic.watchlistMax}개`,
       "오늘의 시장 브리핑 전체 보기",
     ],
-    cta: "준비 중",
+    cta: "베이직 시작하기",
+    ctaHref: "/signup?plan=basic",
     highlighted: true,
   },
   {
@@ -43,25 +45,26 @@ const plans: PricingPlan[] = [
     price: "19,900원",
     priceNote: "/ 월",
     description:
-      "더 많은 종목을 깊이 있게 추적하고 싶은 사용자를 위한 요금제입니다.",
+      "더 많은 종목을 깊이 있게 추적하고 싶은 사용자에게 적합합니다.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.pro.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.pro.dailyAiSummaries}회`,
-      `관심종목 ${PLAN_LIMITS.pro.watchlistMax}개까지`,
-      "관심종목 일일 브리핑 (예정)",
-      "공시 발생 알림 (예정)",
-      "실적 발표 요약 (예정)",
-      "종목 비교 기능 (예정)",
-      "PDF 리포트 저장 (예정)",
+      `관심종목 ${PLAN_LIMITS.pro.watchlistMax}개`,
+      "관심종목 일일 브리핑",
+      "공시 발생 알림",
+      "실적 발표 요약",
+      "종목 비교 기능",
+      "PDF 리포트 저장",
     ],
-    cta: "준비 중",
+    cta: "프로 시작하기",
+    ctaHref: "/signup?plan=pro",
   },
 ];
 
 const faqs = [
   {
-    q: "결제는 언제 시작되나요?",
-    a: "현재는 회원가입과 관심종목 저장 기능까지 제공되며, 결제 기능은 이후 단계에서 제공될 예정입니다.",
+    q: "요금제는 언제든 변경할 수 있나요?",
+    a: "네. 계정 페이지에서 언제든 다른 요금제로 변경할 수 있으며, 변경된 한도는 다음 결제일부터 적용됩니다.",
   },
   {
     q: "스톡리포트는 투자 추천 서비스인가요?",
@@ -69,7 +72,11 @@ const faqs = [
   },
   {
     q: "환불 정책은 어떻게 되나요?",
-    a: "정식 결제 도입 시 별도의 환불 정책이 공지될 예정입니다.",
+    a: "환불 및 해지 정책 페이지의 안내에 따라 처리되며, 결제일 기준 7일 이내에는 사용 내역이 없을 경우 전액 환불이 가능합니다.",
+  },
+  {
+    q: "한국 주식과 미국 주식 모두 지원하나요?",
+    a: "네. 한국 KOSPI·KOSDAQ 종목과 미국 NYSE·NASDAQ 종목을 통합 검색·조회할 수 있습니다.",
   },
 ];
 
@@ -79,7 +86,7 @@ export default function PricingPage() {
       <SectionTitle
         eyebrow="요금제"
         title="필요한 만큼 선택하세요"
-        description="모든 요금제는 정보 제공을 목적으로 제공됩니다. 결제 기능은 이후 단계에서 제공될 예정입니다."
+        description="모든 요금제는 정보 제공을 목적으로 제공됩니다. 매수·매도 권유 없이 투자자가 직접 판단할 수 있는 정보를 제공합니다."
         align="center"
       />
 
@@ -87,11 +94,6 @@ export default function PricingPage() {
         {plans.map((p) => (
           <PricingCard key={p.name} plan={p} />
         ))}
-      </div>
-
-      <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-600">
-        결제 기능은 이후 단계에서 제공될 예정입니다. 모든 사용자는 회원가입 시
-        무료 요금제로 시작합니다.
       </div>
 
       <section className="mt-16">

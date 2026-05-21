@@ -43,7 +43,13 @@ export default function FilingCard({ filing }: FilingCardProps) {
       )}
 
       <div className="mt-4 flex items-center justify-between text-xs">
-        <span className="text-slate-500">출처: {filing.source}</span>
+        <span className="text-slate-500">
+          {filing.source === "opendart"
+            ? "출처: DART"
+            : filing.source === "sec"
+              ? "출처: SEC EDGAR"
+              : "공시·제출자료"}
+        </span>
         {filing.sourceUrl && filing.sourceUrl !== "#" ? (
           <a
             href={filing.sourceUrl}

@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
-import DemoModeNotice from "@/components/common/DemoModeNotice";
 import ReportSection from "@/components/stocks/ReportSection";
 import WatchlistButton from "@/components/stocks/WatchlistButton";
 import ReportLimitBlock from "@/components/stocks/ReportLimitBlock";
 import ReportViewTracker from "@/components/stocks/ReportViewTracker";
-import DataStatusBadge from "@/components/stocks/DataStatusBadge";
 import FilingCard from "@/components/stocks/FilingCard";
 import NormalizedNewsCard from "@/components/stocks/NormalizedNewsCard";
 import FinancialTable from "@/components/stocks/FinancialTable";
@@ -15,7 +13,6 @@ import PriceSnapshotBox from "@/components/stocks/PriceSnapshotBox";
 import { getStockReport } from "@/lib/data/stockDataService";
 import { getStockBy } from "@/lib/mockStocks";
 import { getDemoPriceSnapshot } from "@/lib/priceSnapshot";
-import { getRuntimeFlags } from "@/lib/config/env";
 import { isAiCallable } from "@/lib/ai/config";
 import AiSummarySection from "@/components/stocks/AiSummarySection";
 import type { StockMarket } from "@/lib/providers/types";
@@ -55,7 +52,7 @@ const tableOfContents = [
   { id: "earnings", label: "G. 실적 정보" },
   { id: "financials", label: "H. 재무 핵심지표" },
   { id: "checkpoints", label: "I. 주요 체크포인트" },
-  { id: "ai-summary", label: "J. 데모 AI 정보 요약" },
+  { id: "ai-summary", label: "J. AI 정보 요약" },
   { id: "sources", label: "K. 원문 출처" },
 ];
 
@@ -69,7 +66,6 @@ export default async function StockReportPage({ params }: PageProps) {
   // 관심종목 상태는 클라이언트 컴포넌트(WatchlistButton)가 localStorage에서 직접 읽습니다.
   const isLoggedIn = false;
   const limitExceeded = false;
-  const flags = getRuntimeFlags();
   const aiEnabled = isAiCallable();
 
   // 회사 개요 fallback (mockStocks의 keyProducts·keyMarkets·revenueStructure 사용)
@@ -117,7 +113,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 <span className="badge-outline text-sm">
                   {report.stock.symbol}
                 </span>
-                <DataStatusBadge status={report.dataStatus} />
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="badge-brand">{report.stock.country}</span>
@@ -191,12 +186,9 @@ export default async function StockReportPage({ params }: PageProps) {
               symbol={report.stock.symbol}
             />
           )}
-          <div className="mb-6">
-            <DemoModeNotice variant="report" />
-          </div>
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_280px]">
             <div className="min-w-0 space-y-12">
-              {/* B. 가격 정보 — 데모 가격 데이터 */}
+              {/* B. 가격 정보 */}
               <section id="price" className="scroll-mt-24">
                 <div className="mb-4 flex items-baseline gap-3">
                   <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-md bg-brand-700 px-2 text-xs font-bold uppercase text-white">
@@ -227,10 +219,6 @@ export default async function StockReportPage({ params }: PageProps) {
                   <p className="text-sm leading-7 text-slate-700">
                     {report.summary}
                   </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="text-slate-500">섹션 데이터 상태:</span>
-                    <DataStatusBadge status={report.sectionStatus.overview} />
-                  </div>
                 </div>
               </ReportSection>
 
@@ -330,9 +318,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 }
                 description="회사가 공식적으로 제출한 자료의 목록입니다. 제목·일자·유형·원문 링크를 그대로 표시합니다."
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <DataStatusBadge status={report.sectionStatus.filings} />
-                </div>
                 {report.filings.length === 0 ? (
                   <div className="card p-5 text-sm text-slate-600">
                     현재 제공 가능한 공시 데이터가 없습니다.
@@ -349,12 +334,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="최근 뉴스 흐름"
                 description="여러 출처의 종목 관련 뉴스를 모아 제목·출처·날짜·키워드 중심으로 정리합니다."
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <DataStatusBadge status={report.sectionStatus.news} />
-                  <span className="text-xs text-slate-500">
-                    공급자: <code className="text-slate-700">{flags.newsProvider}</code>
-                  </span>
-                </div>
                 {report.news.length === 0 ? (
                   <div className="card p-5 text-sm text-slate-600">
                     현재 제공 가능한 뉴스 데이터가 없습니다.
@@ -373,12 +352,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="실적 정보"
                 description="최근 보고 기간의 매출·영업이익·순이익을 정리합니다. 숫자는 입력 데이터에 있는 경우에만 사용됩니다."
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <DataStatusBadge status={report.sectionStatus.financials} />
-                  <span className="text-xs text-slate-500">
-                    데이터 기준 안내 — 표시되는 수치는 데모 데이터입니다.
-                  </span>
-                </div>
                 {report.earnings ? (
                   <EarningsBox earnings={report.earnings} />
                 ) : (
@@ -395,9 +368,6 @@ export default async function StockReportPage({ params }: PageProps) {
                 title="재무 핵심지표"
                 description="매출 성장률·영업이익률·부채·현금흐름을 정리합니다. PER/PBR 등은 참고 지표로만 표시되며 투자 판단은 포함하지 않습니다."
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <DataStatusBadge status={report.sectionStatus.financials} />
-                </div>
                 {report.financials.length === 0 ? (
                   <div className="card p-5 text-sm text-slate-600">
                     현재 제공 가능한 재무 데이터가 없습니다.
@@ -455,20 +425,19 @@ export default async function StockReportPage({ params }: PageProps) {
                 </div>
               </ReportSection>
 
-              {/* J. 데모 AI 정보 요약 */}
+              {/* J. AI 정보 요약 */}
               <section id="ai-summary" className="scroll-mt-24">
                 <div className="mb-4 flex items-baseline gap-3">
                   <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-md bg-brand-700 px-2 text-xs font-bold uppercase text-white">
                     J
                   </span>
                   <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
-                    데모 AI 정보 요약
+                    AI 정보 요약
                   </h2>
                 </div>
                 <p className="mb-3 text-sm leading-6 text-slate-600">
-                  AI 정보 요약 기능은 정식 연동 단계에서 제공될 예정입니다.
-                  현재 표시되는 내용은 입력 데이터에서 생성한 데모 요약이며,
-                  투자 판단을 포함하지 않습니다.
+                  공시·뉴스·실적 정보를 바탕으로 정리한 정보 제공용 요약입니다.
+                  특정 종목의 매수·매도·보유를 권유하지 않습니다.
                 </p>
                 <AiSummarySection
                   market={report.stock.market}
@@ -483,7 +452,7 @@ export default async function StockReportPage({ params }: PageProps) {
                 id="sources"
                 label="K"
                 title="원문 출처"
-                description="표시된 정보는 다음 데모 데이터와 원문 링크 자리표시를 기반으로 구성됩니다. 정식 출시 단계에서는 OpenDART·SEC EDGAR·뉴스 공급자 원문이 직접 연결됩니다."
+                description="표시된 정보는 다음 자료와 원문 링크를 기반으로 구성됩니다. 자세한 내용은 원문을 직접 확인해 주세요."
               >
                 <div className="card p-5">
                   <ul className="divide-y divide-slate-200">
@@ -496,9 +465,6 @@ export default async function StockReportPage({ params }: PageProps) {
                           <span className="badge-outline">{s.category}</span>
                           <span className="text-sm text-slate-800">
                             {s.label}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            ({s.provider})
                           </span>
                         </div>
                         {s.href && s.href !== "#" ? (
@@ -525,11 +491,12 @@ export default async function StockReportPage({ params }: PageProps) {
                   <ul className="mt-1 space-y-0.5">
                     <li>· 한국 공시: OpenDART (opendart.fss.or.kr)</li>
                     <li>· 미국 공시: SEC EDGAR (data.sec.gov)</li>
-                    <li>· 뉴스: 설정된 뉴스 공급자 ({flags.newsProvider})</li>
-                    <li>· 재무: OpenDART 단일회사 주요계정 / SEC XBRL companyfacts</li>
+                    <li>· 뉴스: 주요 언론사 보도</li>
+                    <li>· 재무: 정기 보고서 기반 핵심 항목</li>
                   </ul>
                   <p className="mt-2">
-                    표시된 정보는 API 응답과 원문 링크를 기반으로 구성됩니다.
+                    표시된 정보는 원문 자료를 기반으로 구성됩니다. 자세한 내용은
+                    원문 링크에서 확인해 주세요.
                   </p>
                 </div>
               </ReportSection>
@@ -555,21 +522,6 @@ export default async function StockReportPage({ params }: PageProps) {
                   </nav>
                 </div>
 
-                <div className="card p-5">
-                  <h4 className="text-sm font-semibold text-slate-900">
-                    데이터 상태
-                  </h4>
-                  <div className="mt-3 space-y-2 text-sm">
-                    <Row label="공시" status={report.sectionStatus.filings} />
-                    <Row label="재무" status={report.sectionStatus.financials} />
-                    <Row label="뉴스" status={report.sectionStatus.news} />
-                    <Row
-                      label="회사 개요"
-                      status={report.sectionStatus.overview}
-                    />
-                  </div>
-                </div>
-
                 <DisclaimerBox variant="compact" />
               </div>
             </aside>
@@ -580,17 +532,3 @@ export default async function StockReportPage({ params }: PageProps) {
   );
 }
 
-function Row({
-  label,
-  status,
-}: {
-  label: string;
-  status: import("@/lib/providers/types").DataStatus;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-slate-600">{label}</span>
-      <DataStatusBadge status={status} />
-    </div>
-  );
-}

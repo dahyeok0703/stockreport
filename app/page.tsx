@@ -246,9 +246,9 @@ export default function HomePage() {
       {/* PRICING PREVIEW */}
       <section className="container-page py-16">
         <SectionTitle
-          eyebrow="요금제 미리보기"
+          eyebrow="요금제"
           title="필요한 만큼 선택"
-          description="결제 기능은 이후 단계에서 제공될 예정입니다."
+          description="무료부터 시작해 사용량에 맞는 요금제를 선택할 수 있습니다."
           action={
             <Link href="/pricing" className="btn-outline text-sm">
               요금제 자세히 보기

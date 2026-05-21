@@ -250,7 +250,7 @@ export async function getStockReport(
     });
   }
   sourceLinks.push({
-    label: `뉴스 (${flags.newsProvider})`,
+    label: "뉴스 원문",
     href: "#",
     category: "뉴스",
     provider: "news",

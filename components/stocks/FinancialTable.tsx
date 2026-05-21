@@ -4,6 +4,12 @@ interface FinancialTableProps {
   metrics: NormalizedFinancialMetric[];
 }
 
+function sourceLabel(src: NormalizedFinancialMetric["source"]): string {
+  if (src === "opendart") return "DART";
+  if (src === "sec") return "SEC XBRL";
+  return "정기 보고서";
+}
+
 export default function FinancialTable({ metrics }: FinancialTableProps) {
   return (
     <div className="card overflow-hidden p-0">
@@ -13,7 +19,6 @@ export default function FinancialTable({ metrics }: FinancialTableProps) {
             <th className="px-4 py-2 text-left">항목</th>
             <th className="px-4 py-2 text-right">값</th>
             <th className="px-4 py-2 text-left">기간</th>
-            <th className="px-4 py-2 text-left">원본 태그</th>
             <th className="px-4 py-2 text-left">출처</th>
           </tr>
         </thead>
@@ -30,9 +35,8 @@ export default function FinancialTable({ metrics }: FinancialTableProps) {
                 {m.period ?? "—"}
               </td>
               <td className="px-4 py-2 text-xs text-slate-500">
-                {m.rawName ?? "—"}
+                {sourceLabel(m.source)}
               </td>
-              <td className="px-4 py-2 text-xs text-slate-500">{m.source}</td>
             </tr>
           ))}
         </tbody>

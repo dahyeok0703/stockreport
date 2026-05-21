@@ -26,10 +26,7 @@ export default function PriceSnapshotBox({ snap }: PriceSnapshotBoxProps) {
     <section className="card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            데모 가격 정보
-          </p>
-          <div className="mt-2 flex flex-wrap items-baseline gap-3">
+          <div className="flex flex-wrap items-baseline gap-3">
             <span className={`text-3xl font-bold tabular-nums ${priceColor}`}>
               {formatDemoPrice(snap)}
             </span>
@@ -40,7 +37,7 @@ export default function PriceSnapshotBox({ snap }: PriceSnapshotBoxProps) {
             </span>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            데이터 기준 시각 · {snap.asOf}
+            데이터 기준 · {snap.asOf}
           </p>
         </div>
 
@@ -58,11 +55,6 @@ export default function PriceSnapshotBox({ snap }: PriceSnapshotBoxProps) {
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
-        현재 표시되는 가격 정보는 데모 데이터입니다. 실제 시세 연동은 정식
-        서비스 단계에서 제공될 예정입니다.
       </div>
     </section>
   );

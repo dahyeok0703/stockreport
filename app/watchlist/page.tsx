@@ -24,7 +24,7 @@ function demoCounts(key: string): {
   return {
     newDisclosure: h % 4,
     newNews: 1 + ((h >> 3) % 6),
-    upcomingEarnings: h % 3 === 0 ? "다음 분기 발표 예정" : undefined,
+    upcomingEarnings: h % 3 === 0 ? "다음 분기 발표 일정" : undefined,
   };
 }
 
@@ -38,7 +38,7 @@ export default function WatchlistPage() {
         title="내 관심종목"
         description={
           hydrated
-            ? `이 브라우저에 저장된 관심종목 ${items.length}개`
+            ? `관심종목 ${items.length}개`
             : "관심종목을 불러오는 중…"
         }
         action={
@@ -47,11 +47,6 @@ export default function WatchlistPage() {
           </Link>
         }
       />
-
-      <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
-        현재 데모 모드입니다. 관심종목은 이 기기 브라우저(localStorage)에만 저장되며,
-        로그인·동기화·알림 기능은 추후 단계에서 제공될 예정입니다.
-      </div>
 
       {!hydrated ? (
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -81,7 +76,7 @@ export default function WatchlistPage() {
           {/* 요약 카드 */}
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <SummaryCard
-              label="신규 공시 (데모)"
+              label="신규 공시"
               value={items.reduce(
                 (a, b) => a + demoCounts(b.key).newDisclosure,
                 0,
@@ -89,7 +84,7 @@ export default function WatchlistPage() {
               suffix="건"
             />
             <SummaryCard
-              label="신규 뉴스 (데모)"
+              label="신규 뉴스"
               value={items.reduce(
                 (a, b) => a + demoCounts(b.key).newNews,
                 0,
@@ -97,7 +92,7 @@ export default function WatchlistPage() {
               suffix="건"
             />
             <SummaryCard
-              label="다가오는 실적 (데모)"
+              label="다가오는 실적"
               value={
                 items.filter((i) => demoCounts(i.key).upcomingEarnings).length
               }
@@ -143,7 +138,7 @@ export default function WatchlistPage() {
                     <Mini label="신규 뉴스" value={c.newNews} />
                     <Mini
                       label="실적"
-                      value={c.upcomingEarnings ? "예정" : "—"}
+                      value={c.upcomingEarnings ? "있음" : "—"}
                     />
                   </div>
 

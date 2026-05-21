@@ -6,7 +6,7 @@ import type { PriceSnapshot, Stock } from "@/lib/mockStocks";
  * 종목 헤더에 표시할 "데모 가격 정보"를 시드 기반으로 안정적으로 만듭니다.
  */
 
-const DEMO_AS_OF = "2026-05-20 18:00 (데모 기준 시각)";
+const DEMO_AS_OF = "2026-05-20 18:00";
 
 const KRW_BASE: Record<string, number> = {
   "005930": 72_800,

@@ -21,7 +21,7 @@ const marketFilters: { value: MarketFilter; label: string }[] = [
 ];
 
 const sortOptions: { value: SortKey; label: string }[] = [
-  { value: "popular", label: "많이 조회된 종목 (데모)" },
+  { value: "popular", label: "많이 조회된 종목" },
   { value: "name", label: "이름순" },
   { value: "market", label: "시장순" },
 ];
@@ -252,9 +252,6 @@ export default function SearchClient() {
               건
             </>
           )}
-        </p>
-        <p className="text-xs text-slate-500">
-          관심종목은 이 기기 브라우저에 저장됩니다 (데모 모드)
         </p>
       </div>
 
