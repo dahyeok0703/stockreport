@@ -5,7 +5,10 @@ import DisclaimerBox from "@/components/common/DisclaimerBox";
 import SectionTitle from "@/components/common/SectionTitle";
 import { getCurrentAuth } from "@/lib/auth";
 import { PLAN_LIMITS, getPlanLimit } from "@/lib/planLimits";
-import { getTodayUsageStatus } from "@/lib/usage";
+import {
+  getTodayUsageStatus,
+  getTodayAiUsageStatus,
+} from "@/lib/usage";
 import { getMyWatchlist } from "@/lib/watchlist";
 
 export const metadata = {
@@ -39,8 +42,11 @@ export default async function AccountPage() {
   }
 
   const planLimit = getPlanLimit(profile?.plan);
-  const usageStatus = await getTodayUsageStatus();
-  const watchlist = await getMyWatchlist();
+  const [usageStatus, aiUsage, watchlist] = await Promise.all([
+    getTodayUsageStatus(),
+    getTodayAiUsageStatus(),
+    getMyWatchlist(),
+  ]);
   const todayViews = usageStatus.usage?.report_views ?? 0;
 
   return (
@@ -92,6 +98,11 @@ export default async function AccountPage() {
               max={planLimit.dailyReportViews}
             />
             <UsageRow
+              label="오늘 AI 요약"
+              current={aiUsage.used}
+              max={planLimit.dailyAiSummaries}
+            />
+            <UsageRow
               label="관심종목"
               current={watchlist.length}
               max={planLimit.watchlistMax}
@@ -108,6 +119,7 @@ export default async function AccountPage() {
               <tr>
                 <th className="px-4 py-3 text-left">요금제</th>
                 <th className="px-4 py-3 text-right">하루 리포트 조회</th>
+                <th className="px-4 py-3 text-right">하루 AI 요약</th>
                 <th className="px-4 py-3 text-right">관심종목 한도</th>
               </tr>
             </thead>
@@ -129,6 +141,9 @@ export default async function AccountPage() {
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {p.dailyReportViews}회 / 일
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {p.dailyAiSummaries}회 / 일
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {p.watchlistMax}개

@@ -12,6 +12,7 @@ const plans: PricingPlan[] = [
     description: "스톡리포트를 가볍게 체험해 보세요.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.free.dailyReportViews}회`,
+      `하루 AI 요약 ${PLAN_LIMITS.free.dailyAiSummaries}회`,
       "최근 뉴스 일부 요약",
       "최근 공시 일부 요약",
       `관심종목 ${PLAN_LIMITS.free.watchlistMax}개까지`,
@@ -26,6 +27,7 @@ const plans: PricingPlan[] = [
     description: "꾸준히 시장을 챙겨보는 개인 투자자에게 적합한 요금제입니다.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.basic.dailyReportViews}회`,
+      `하루 AI 요약 ${PLAN_LIMITS.basic.dailyAiSummaries}회`,
       "한국·미국 종목 검색",
       "공시 요약 전체 보기",
       "뉴스 요약 전체 보기",
@@ -44,6 +46,7 @@ const plans: PricingPlan[] = [
       "더 많은 종목을 깊이 있게 추적하고 싶은 사용자를 위한 요금제입니다.",
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.pro.dailyReportViews}회`,
+      `하루 AI 요약 ${PLAN_LIMITS.pro.dailyAiSummaries}회`,
       `관심종목 ${PLAN_LIMITS.pro.watchlistMax}개까지`,
       "관심종목 일일 브리핑 (예정)",
       "공시 발생 알림 (예정)",

@@ -144,14 +144,14 @@ export default async function WatchlistPage() {
                   <td className="sm:px-4 sm:py-3 sm:text-right">
                     <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                       <Link
-                        href={getStockReportHref(
+                        href={`${getStockReportHref(
                           w.market as "kr" | "us",
                           w.symbol,
-                        )}
+                        )}#ai-summary`}
                         className="btn-outline text-xs"
-                        title="리포트 페이지에서 최신 데이터를 다시 불러옵니다"
+                        title="리포트 페이지의 AI 정보 요약 섹션으로 이동합니다"
                       >
-                        데이터 새로고침
+                        AI 정보 요약 보기
                       </Link>
                       <Link
                         href={getStockReportHref(
@@ -159,8 +159,9 @@ export default async function WatchlistPage() {
                           w.symbol,
                         )}
                         className="btn-ghost text-xs"
+                        title="리포트 페이지에서 최신 데이터를 다시 불러옵니다"
                       >
-                        리포트 보기
+                        데이터 새로고침
                       </Link>
                       <RemoveWatchlistButton
                         market={w.market}

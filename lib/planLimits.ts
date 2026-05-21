@@ -4,6 +4,7 @@ export interface PlanLimit {
   code: PlanCode;
   label: string;
   dailyReportViews: number;
+  dailyAiSummaries: number;
   watchlistMax: number;
 }
 
@@ -12,18 +13,21 @@ export const PLAN_LIMITS: Record<PlanCode, PlanLimit> = {
     code: "free",
     label: "무료",
     dailyReportViews: 3,
+    dailyAiSummaries: 3,
     watchlistMax: 5,
   },
   basic: {
     code: "basic",
     label: "베이직",
     dailyReportViews: 50,
+    dailyAiSummaries: 50,
     watchlistMax: 50,
   },
   pro: {
     code: "pro",
     label: "프로",
     dailyReportViews: 200,
+    dailyAiSummaries: 200,
     watchlistMax: 200,
   },
 };

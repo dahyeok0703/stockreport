@@ -16,6 +16,8 @@ import { getTodayUsageStatus } from "@/lib/usage";
 import { isInMyWatchlist } from "@/lib/watchlist";
 import { getStockBy } from "@/lib/mockStocks";
 import { getRuntimeFlags } from "@/lib/config/env";
+import { isAiCallable } from "@/lib/ai/config";
+import AiSummarySection from "@/components/stocks/AiSummarySection";
 import type { StockMarket } from "@/lib/providers/types";
 
 interface PageProps {
@@ -42,6 +44,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 const tableOfContents = [
   { id: "summary", label: "A. 한눈에 보는 요약" },
+  { id: "ai-summary", label: "AI 정보 요약" },
   { id: "company", label: "B. 회사 개요" },
   { id: "filings", label: "C. 최근 공시/제출자료" },
   { id: "news", label: "D. 최근 뉴스" },
@@ -67,6 +70,7 @@ export default async function StockReportPage({ params }: PageProps) {
   const isLoggedIn = Boolean(user);
   const limitExceeded = isLoggedIn && usage.exceeded;
   const flags = getRuntimeFlags();
+  const aiEnabled = isAiCallable();
 
   // 회사 개요 fallback (mockStocks의 keyProducts·keyMarkets·revenueStructure 사용)
   const mockMeta = getStockBy(report.stock.market, report.stock.symbol);
@@ -203,6 +207,14 @@ export default async function StockReportPage({ params }: PageProps) {
                   </div>
                 </div>
               </ReportSection>
+
+              {/* A2. AI 정보 요약 (client) */}
+              <AiSummarySection
+                market={report.stock.market}
+                symbol={report.stock.symbol}
+                isLoggedIn={isLoggedIn}
+                aiEnabled={aiEnabled}
+              />
 
               {/* B. 회사 개요 */}
               <ReportSection
