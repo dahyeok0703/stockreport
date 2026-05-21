@@ -12,6 +12,7 @@ import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { clearAccountHint, setAccountHint } from "@/lib/authHint";
 
 type Mode = "login" | "signup";
 
@@ -55,7 +56,9 @@ export default function SafeAuthForm({ mode }: SafeAuthFormProps) {
 
     const supabase = createSupabaseBrowserClient();
     if (!supabase) {
-      // 환경 변수가 없을 때는 안전하게 안내만 표시하고 페이지에 머뭅니다.
+      // 인증 백엔드가 일시적으로 응답하지 않더라도 사용자 흐름은 유지합니다.
+      // 회원가입 폼을 거친 것으로 간주해 다음 액션에서는 로그인 페이지로 안내합니다.
+      if (isSignup) setAccountHint();
       setInfo(
         isSignup
           ? "회원가입 처리에 일시적 문제가 있습니다. 잠시 후 다시 시도해 주세요."
@@ -75,6 +78,9 @@ export default function SafeAuthForm({ mode }: SafeAuthFormProps) {
           setError(translateAuthError(signUpError.message));
           return;
         }
+        // 회원가입 흐름을 거친 사용자라는 힌트를 남겨, 다음에 다시 인증이
+        // 필요한 액션을 시도할 때 로그인 페이지로 안내합니다.
+        setAccountHint();
         if (data.session) {
           router.replace(nextPath);
           router.refresh();
@@ -92,6 +98,7 @@ export default function SafeAuthForm({ mode }: SafeAuthFormProps) {
           setError(translateAuthError(signInError.message));
           return;
         }
+        setAccountHint();
         router.replace(nextPath);
         router.refresh();
       }
@@ -189,6 +196,7 @@ export default function SafeAuthForm({ mode }: SafeAuthFormProps) {
             이미 계정이 있으신가요?{" "}
             <Link
               href={`/login${nextPath !== "/" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+              onClick={() => setAccountHint()}
               className="font-medium text-brand-700 hover:underline"
             >
               로그인
@@ -199,6 +207,7 @@ export default function SafeAuthForm({ mode }: SafeAuthFormProps) {
             아직 계정이 없으신가요?{" "}
             <Link
               href={`/signup${nextPath !== "/" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+              onClick={() => clearAccountHint()}
               className="font-medium text-brand-700 hover:underline"
             >
               회원가입
