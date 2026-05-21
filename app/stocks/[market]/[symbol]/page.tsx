@@ -102,7 +102,15 @@ export default async function StockReportPage({ params }: PageProps) {
 
           <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md bg-brand-700 px-1.5 text-[11px] font-bold uppercase text-white">
+                  A
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  종목 헤더
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                   {report.stock.name}
                 </h1>
