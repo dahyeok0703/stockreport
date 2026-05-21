@@ -29,7 +29,6 @@ const plans: PricingPlan[] = [
     features: [
       `하루 종목 리포트 조회 ${PLAN_LIMITS.basic.dailyReportViews}회`,
       `하루 AI 요약 ${PLAN_LIMITS.basic.dailyAiSummaries}회`,
-      "한국·미국 종목 통합 검색",
       "공시 요약 전체 보기",
       "뉴스 요약 전체 보기",
       "실적 요약 전체 보기",
