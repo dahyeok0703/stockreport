@@ -1,5 +1,7 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import DisclaimerBox from "@/components/common/DisclaimerBox";
+import PeixeLuaLogo from "@/components/brand/PeixeLuaLogo";
+import { brandConfig } from "@/lib/brand";
 
 const principles = [
   {
@@ -111,9 +113,52 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="border-t border-slate-200 bg-white">
+        <div className="container-page py-12 sm:py-16">
+          <SectionTitle
+            eyebrow="운영사"
+            title={`${brandConfig.companyNameKo} (${brandConfig.companyNameEn})`}
+            description={`${brandConfig.serviceNameKo}는 ${brandConfig.companyNameKo}가 운영하는 한국·미국 주식 공시·뉴스·실적 정보 요약 웹사이트입니다.`}
+          />
+
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="card flex flex-col p-6 md:col-span-2">
+              <PeixeLuaLogo variant="full" size="large" />
+              <p className="mt-4 text-sm leading-7 text-slate-700">
+                {brandConfig.companyNameKo}는 게임, 웹서비스, 앱 등 다양한
+                디지털 서비스를 개발·운영하는 창작형 기술 브랜드입니다.
+                {brandConfig.serviceNameKo}는 그중 한국·미국 주식 정보를
+                정리해서 보여주는 정보 제공 서비스로, 매수·매도 권유 없이
+                투자자가 직접 판단할 수 있는 정보를 제공합니다.
+              </p>
+            </div>
+
+            <div className="card p-6">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                구조
+              </h4>
+              <dl className="mt-3 space-y-2 text-sm">
+                <Row label="운영사" value={brandConfig.companyNameKo} />
+                <Row label="영문 표기" value={brandConfig.companyNameEn} />
+                <Row label="서비스명" value={brandConfig.serviceNameKo} />
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="container-page py-12">
         <DisclaimerBox />
       </section>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <dt className="min-w-[72px] text-slate-500">{label}</dt>
+      <dd className="font-medium text-slate-800">{value}</dd>
     </div>
   );
 }

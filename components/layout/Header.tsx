@@ -30,8 +30,13 @@ export default function Header() {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-700 text-sm font-bold text-white">
             S
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-900">
-            스톡리포트
+          <span className="flex flex-col leading-tight">
+            <span className="text-lg font-bold tracking-tight text-slate-900">
+              스톡리포트
+            </span>
+            <span className="hidden text-[10px] font-medium text-slate-400 sm:inline">
+              by PeixeLua
+            </span>
           </span>
         </Link>
 

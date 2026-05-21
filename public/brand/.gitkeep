@@ -1,0 +1,7 @@
+# 페이시루아 로고 파일을 이 폴더에 두세요.
+# 권장 파일:
+#   - peixelua-logo.png            (메인 로고)
+#   - peixelua-logo-transparent.png (투명 배경 버전)
+#   - peixelua-icon.png            (아이콘 단독 버전)
+#
+# 파일이 없어도 PeixeLuaLogo 컴포넌트의 텍스트 fallback 으로 안전하게 표시됩니다.

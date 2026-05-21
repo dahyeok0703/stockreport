@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { brandConfig } from "@/lib/brand";
+import PeixeLuaLogo from "@/components/brand/PeixeLuaLogo";
 
 const footerSections = [
   {
@@ -33,7 +35,7 @@ const footerSections = [
 
 export default function Footer() {
   const biz = getBusinessInfo();
-  const supportEmail = biz?.supportEmail;
+  const supportEmail = biz?.supportEmail ?? brandConfig.supportEmail;
 
   return (
     <footer className="border-t border-slate-200 bg-white">
@@ -45,7 +47,7 @@ export default function Footer() {
                 S
               </span>
               <span className="text-base font-bold text-slate-900">
-                스톡리포트
+                {brandConfig.serviceNameKo}
               </span>
             </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
@@ -53,6 +55,12 @@ export default function Footer() {
               정보 웹사이트입니다. 매수·매도 권유 없이, 투자자가 직접 판단할
               수 있는 정보를 제공합니다.
             </p>
+
+            <dl className="mt-4 grid grid-cols-1 gap-1 text-xs text-slate-500 sm:grid-cols-2">
+              <Row label="운영사" value={brandConfig.companyNameKo} />
+              <Row label="서비스명" value={brandConfig.serviceNameKo} />
+            </dl>
+
             {supportEmail && (
               <p className="mt-3 text-xs text-slate-500">
                 고객센터 ·{" "}
@@ -103,12 +111,19 @@ export default function Footer() {
           </div>
         )}
 
-        <div className="section-divider mt-10 pt-6">
+        <div className="section-divider mt-10 flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <PeixeLuaLogo variant="full" size="small" tone="muted" />
+            <span className="text-xs text-slate-400">
+              {brandConfig.companyNameKo} · {brandConfig.companyNameEn}
+            </span>
+          </div>
           <p className="text-xs leading-5 text-slate-500">
-            © {new Date().getFullYear()} 스톡리포트. 본 사이트의 모든 요약과
-            정보는 공시·뉴스·실적자료를 바탕으로 한 정보 제공용 자료이며,
-            특정 종목의 매수·매도·보유를 권유하지 않습니다. 투자 판단과 그
-            결과에 대한 책임은 이용자 본인에게 있습니다.
+            © {new Date().getFullYear()} {brandConfig.companyNameKo}.
+            본 사이트의 모든 요약과 정보는 공시·뉴스·실적자료를 바탕으로 한
+            정보 제공용 자료이며, 특정 종목의 매수·매도·보유를 권유하지
+            않습니다. 투자 판단과 그 결과에 대한 책임은 이용자 본인에게
+            있습니다.
           </p>
         </div>
       </div>
@@ -120,7 +135,7 @@ function Row({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex gap-2">
-      <dt className="min-w-[100px] text-slate-500">{label}</dt>
+      <dt className="min-w-[80px] text-slate-500">{label}</dt>
       <dd className="text-slate-700">{value}</dd>
     </div>
   );
